@@ -1,0 +1,19 @@
+{
+  "author": "Zahan Malkani <z@zahanm.com>",
+  "name": "examples",
+  "description": "Examples for dog.js",
+  "version": "0.0.1-alpha",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/zahanm/dogjs.git"
+  },
+  "dependencies": {
+    "express": "*"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "private": true,
+  "engines": {
+    "node": "*"
+  }
+}
