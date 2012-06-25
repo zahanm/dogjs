@@ -1,0 +1,9 @@
+
+LISTEN TO PUBLIC VIA http AT "/" FOR homepage
+
+ON homepage DO
+
+  message = "Hello world"
+  NOTIFY PUBLIC VIA http_response OF message
+
+END
