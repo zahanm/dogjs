@@ -25,21 +25,35 @@ track1 = {
   id: "TyFmJoRMj1Fj",
   name: [ "main" ]
   variables: {
-    
+    // TODO what about the tasks and messages?
+    "image_path": "/images/image1.png",
+    "response": null,
+    "rating": null,
+    "label": null
   },
-  trace,
-  tracks,
-  tasks,
-  messages,
-  events
-  // ..
+  trace: [ ],
+  tracks: [ track2.id || "4miff6SQ9av1" ],
+  tasks: [ task1, task2 ],
+  messages: [ msg1 ],
+  events: [ ]
 };
 
 track2 = {
   type: "track",
-  timestamp: "2012-06-22T16:25:16.591Z",
-  id: "4miff6SQ9av1"
-  // ..
+  timestamp: "2012-06-21T11:35:46.591Z",
+  id: "4miff6SQ9av1",
+  name: [ "@each:hello_request" ],
+  variables: {
+    "my_name": "Zahan",
+    "requester": null,
+    "response": null,
+    "greeting": null
+  },
+  trace: [ track1.id ],
+  tracks: [ ],
+  tasks: [ task3 ],
+  messages: [ msg2 ],
+  events: [ ]
 };
 
 task1 = {
@@ -47,9 +61,7 @@ task1 = {
   timestamp: "2012-06-22T16:25:16.591Z",
   id: "noNP1ZRboya5",
   track_id: track1.id,
-  name: [
-    "rate_image"
-  ],
+  name: [ "rate_image" ],
   input: {
     path: "/images/image1.png"
   },
@@ -65,9 +77,7 @@ task2 = {
   timestamp: "2012-06-20T16:45:56.591Z",
   id: "q5C1ebSKmmtS",
   track_id: track2.id,
-  name: [
-    "label_image"
-  ],
+  name: [ "label_image" ],
   input: {
     path: "/images/image1.png"
   },
