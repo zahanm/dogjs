@@ -17,13 +17,13 @@ server.get('/', function(req, res) {
 
 // Dog API section
 
-var task1, task2, task3, msg1, msg2, track1, track2;
+var task1, task2, task3, msg1, msg2, track1, track2, tasks, msgs, tracks;
 
 track1 = {
   type: "track",
   timestamp: "2012-06-22T16:25:16.591Z",
   id: "TyFmJoRMj1Fj",
-  name: [ "main" ]
+  name: [ "main" ],
   variables: {
     // TODO what about the tasks and messages?
     "image_path": "/images/image1.png",
@@ -32,7 +32,7 @@ track1 = {
     "label": null
   },
   trace: [ ],
-  tracks: [ track2.id || "4miff6SQ9av1" ],
+  tracks: [ "4miff6SQ9av1" ],
   tasks: [ task1, task2 ],
   messages: [ msg1 ],
   events: [ ]
@@ -125,11 +125,63 @@ msg2 = {
   }
 };
 
+tasks = {};
+tasks[ task1.id ] = task1;
+tasks[ task2.id ] = task2;
+tasks[ task3.id ] = task3;
+
+msgs = {};
+msgs[ msg1.id ] = msg1;
+msgs[ msg2.id ] = msg2;
+
+tracks = {};
+tracks[ track1.id ] = track1;
+tracks[ track2.id ] = track2;
+
+// tasks
+
 server.get('/dog/stream/tasks.json', function(req, res) {
   res.send(json({
-    items: [ task1, task2, task3 ]
+    items: Object.keys(tasks).map(function(oid) { return tasks[oid]; })
   }));
 });
+
+server.get('/dog/stream/tasks/:oid.json', function(req, res, next) {
+  if (!req.params.oid in tasks) { next(); return; }
+  res.send(json( tasks[ req.params.oid ] ));
+});
+
+// messages
+
+server.get('/dog/stream/messages.json', function(req, res, next) {
+  res.send(json({
+    items: Object.keys(msgs).map(function(oid) { return msgs[oid]; })
+  }));
+});
+
+server.get('/dog/stream/messages/:oid.json', function(req, res, next) {
+  if (!req.params.oid in msgs) { next(); return; }
+  res.send(json( msgs[ req.params.oid ] ));
+});
+
+// tracks
+
+server.get('/dog/stream/tracks.json', function(req, res, next) {
+  res.send(json({
+    items: Object.keys(tracks).map(function(oid) { return tracks[oid]; })
+  }));
+});
+
+server.get('/dog/stream/tracks/:oid.json', function(req, res, next) {
+  if (!req.params.oid in tracks) { next(); return; }
+  res.send(json( tracks[ req.params.oid ] ));
+});
+
+server.get('/dog/stream/tracks/root.json', function(req, res, next) {
+  res.send(json( track1 ));
+});
+
+// catch all
 
 server.get('/*', function(req, res) {
   res.send(json({
