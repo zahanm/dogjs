@@ -1,9 +1,58 @@
 
-LISTEN TO PUBLIC VIA http AT "/" FOR homepage
+# LISTEN TO PUBLIC VIA http AT "/" FOR homepage
+#
+# ON homepage DO
+#
+#   message = "Hello world"
+#   NOTIFY PUBLIC VIA http_response OF message
+#
+# END
 
-ON homepage DO
+# The following Dog code corresponds to the fake api
 
-  message = "Hello world"
-  NOTIFY PUBLIC VIA http_response OF message
+rate_image = task {
+  input path
+  output rating
+  output inappropriate
+  output keywords
+}
 
+label_image = task {
+  input path
+  output label
+  output keywords
+}
+
+say_hello = task {
+  input name
+  output greeting
+}
+
+welcome = message {
+  title: "Welcome!",
+  body: "This is a warm hello to you."
+}
+
+alert = message {
+  title: "Oh no!",
+  body: "Something very scary just happened!"
+}
+
+image_path = "/images/image1.png"
+
+NOTIFY PEOPLE FROM mit OF welcome
+
+response = ASK PEOPLE FROM mit TO rate_image ON image_path
+rating = response.rating
+
+response = ASK PEOPLE FROM mit TO label_image ON image_path
+label = response.label
+
+LISTEN TO PUBLIC VIA http AT "/hello" FOR hello_request
+ON EACH hello_request DO
+  my_name = "Zahan"
+  requester = PERSON FROM hello_request
+  response = ASK requester TO say_hello ON my_name
+  greeting = response.greeting
+  NOTIFY requester OF alert
 END
