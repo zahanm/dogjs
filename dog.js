@@ -15,14 +15,15 @@
 //
 // You can make a new request with
 //
-//     var request = new JaxLib.Request('http://jabber.wocky.org/dog/')
+//     var request = new JaxLib.Request()
+//     request.on('success', ..);
+//     request.get('http://jabber.wocky.org/dog/');
 //
 (function(exports) {
 
   var Request;
 
-  Request = function(url) {
-    this.url = url;
+  Request = function() {
     this.listeners = {};
     this.xhp = new XMLHttpRequest();
     var reqcontext = this;
@@ -36,20 +37,29 @@
   };
   exports.Request = Request;
 
-  Request.prototype.get = function() {
-    this.xhp.open('GET', this.url, true);
+  Request.prototype.get = function(url) {
+    this.xhp.open('GET', url, true);
+    this.xhp.send();
   };
 
-  Request.prototype.on = function(target, callback) {
-    if (!target in this.listeners) {
-      this.listeners[ target ] = [];
+  Request.prototype.on = function(eventname, callback, context) {
+    if ( !(eventname in this.listeners) ) {
+      this.listeners[ eventname ] = [];
     }
-    this.listeners[ target ].push(callback);
+    this.listeners[ eventname ].push({ f: callback, c: context || this });
   };
 
   function loaded (ev) {
     if ( this.xhp.status.toString()[0] === '2' ) {
-      
+      if ('success' in this.listeners) {
+        var data = null;
+        try {
+          data = JSON.parse(this.xhp.responseText);
+        } catch (err) { }
+        this.listeners['success'].forEach(function(listener) {
+          listener.f.call(listener.c, data || this.xhp.responseText, this.xhp.statusText);
+        }, this);
+      }
     } else {
       console.log('Successful request with non-2XX status.');
       console.log(this.xhp);
@@ -57,6 +67,11 @@
   }
 
   function errored (ev) {
+    if ('error' in this.listeners) {
+      this.listeners['error'].forEach(function(listener) {
+        listener.f.call(listener.c, this.xhp.statusText);
+      }, this);
+    }
     console.log('Unsuccessful request.');
     console.log(this.xhp);
   }
@@ -71,6 +86,12 @@
 //
 (function(exports) {
 
-  
+  document.addEventListener('DOMContentLoaded', function() {
+    var request = new JaxLib.Request();
+    request.on('success', function(data) {
+      console.log( data['msg'] );
+    });
+    request.get('http://localhost:8080/helloworld');
+  }, false);
 
 })(window.dogjs = {});

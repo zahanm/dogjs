@@ -1,6 +1,7 @@
 
 var express, server, port;
 
+path = require('path');
 express = require('express');
 
 server = express.createServer();
@@ -12,6 +13,16 @@ server.configure(function() {
 });
 
 server.get('/', function(req, res) {
+  res.contentType('text/html');
+  res.sendfile( path.resolve( __dirname, 'index.html' ) );
+});
+
+server.get('/dog.js', function(req, res) {
+  res.contentType('text/javascript');
+  res.sendfile( path.resolve( __dirname, '../dog.js' ) );
+});
+
+server.get('/helloworld', function(req, res) {
   res.send(json('Hello world'));
 });
 
