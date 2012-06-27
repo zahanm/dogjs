@@ -17,23 +17,27 @@ server.get('/', function(req, res) {
 
 // Dog API section
 
-var task1, task2, task3, msg1, msg2, track1, track2, tasks, msgs, tracks;
+var event1, task1, task2, task3, msg1, msg2, track1, track2, tasks, msgs, tracks;
+
+event1 = {
+  type: "event",
+  timestamp: "2012-06-23T15:30:22.591Z",
+  id: "VoojLPmRpeyg",
+  track_id: "TyFmJoRMj1Fj",
+  name: [ "hello_request" ],
+  input: [ ],
+  output: [ ]
+};
 
 track1 = {
   type: "track",
   timestamp: "2012-06-22T16:25:16.591Z",
   id: "TyFmJoRMj1Fj",
-  name: [ "main" ],
-  variables: {
-    // TODO what about the tasks and messages?
-    "image_path": "/images/image1.png",
-    "response": null,
-    "rating": null,
-    "label": null
-  },
+  name: [ "@root" ],
+  variables: {},
   trace: [ ],
   tracks: [ "4miff6SQ9av1" ],
-  tasks: [ task1, task2 ],
+  tasks: [ task1 ],
   messages: [ msg1 ],
   events: [ ]
 };
@@ -44,16 +48,13 @@ track2 = {
   id: "4miff6SQ9av1",
   name: [ "@each:hello_request" ],
   variables: {
-    "my_name": "Zahan",
-    "requester": null,
-    "response": null,
-    "greeting": null
+    "my_name": "Zahan"
   },
   trace: [ track1.id ],
   tracks: [ ],
   tasks: [ task3 ],
-  messages: [ msg2 ],
-  events: [ ]
+  messages: [ msg1, msg2 ],
+  events: [ event1 ]
 };
 
 task1 = {

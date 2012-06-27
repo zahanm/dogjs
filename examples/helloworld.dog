@@ -23,25 +23,16 @@ label_image = task {
   output keywords
 }
 
-say_hello = task {
-  input name
-  output greeting
-}
-
 welcome = message {
   title: "Welcome!",
   body: "This is a warm hello to you."
-}
-
-alert = message {
-  title: "Oh no!",
-  body: "Something very scary just happened!"
 }
 
 image_path = "/images/image1.png"
 
 NOTIFY PEOPLE FROM mit OF welcome
 
+# asks just 1 person by default
 response = ASK PEOPLE FROM mit TO rate_image ON image_path
 rating = response.rating
 
@@ -50,9 +41,23 @@ label = response.label
 
 LISTEN TO PUBLIC VIA http AT "/hello" FOR hello_request
 ON EACH hello_request DO
+
+  say_hello = task {
+    input name
+    output greeting
+  }
+
+  alert = message {
+    title: "Oh no!",
+    body: "Something very scary just happened!"
+  }
+
   my_name = "Zahan"
   requester = PERSON FROM hello_request
   response = ASK requester TO say_hello ON my_name
   greeting = response.greeting
+  # variable notification for API
+  NOTIFY greeting
+  # message notification to person
   NOTIFY requester OF alert
 END
