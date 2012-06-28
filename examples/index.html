@@ -8,5 +8,25 @@
     <h3>Hi there</h3>
   </div>
   <script src="/dog.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript" charset="utf-8">
+
+  // Test JaxLib.Request
+  document.addEventListener('DOMContentLoaded', function() {
+    var request = new JaxLib.Request();
+    request.on('success', function(data) {
+      console.log( data['msg'] );
+    });
+    request.get('http://localhost:8080/helloworld');
+  }, false);
+
+  // Test dogjs
+  setTimeout(function() {
+    dogjs.emit('message', { aha: 'yeah' });
+  }, 100);
+  dogjs.on('message', function(data) {
+    console.log(data['aha']);
+  });
+
+  </script>
 </body>
 </html>

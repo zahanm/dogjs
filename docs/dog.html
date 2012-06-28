@@ -1,4 +1,31 @@
-<!DOCTYPE html>  <html> <head>   <title>dog.js</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               dog.js             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <h3>Request</h3>
+<!DOCTYPE html>  <html> <head>   <title>dog.js</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               dog.js             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <h3>EventEmitter</h3>
+
+<p>Emits events, and can be inherited from.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="kd">function</span> <span class="nx">EventEmitter</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">listeners</span> <span class="o">=</span> <span class="p">{};</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nx">EventEmitter</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">on</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">eventname</span><span class="p">,</span> <span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="p">(</span><span class="nx">eventname</span> <span class="k">in</span> <span class="k">this</span><span class="p">.</span><span class="nx">listeners</span><span class="p">)</span> <span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">listeners</span><span class="p">[</span> <span class="nx">eventname</span> <span class="p">]</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="p">}</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">listeners</span><span class="p">[</span> <span class="nx">eventname</span> <span class="p">].</span><span class="nx">push</span><span class="p">({</span> <span class="nx">f</span><span class="o">:</span> <span class="nx">callback</span><span class="p">,</span> <span class="nx">c</span><span class="o">:</span> <span class="nx">context</span> <span class="o">||</span> <span class="k">this</span> <span class="p">});</span>
+  <span class="p">};</span>
+
+  <span class="nx">EventEmitter</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">emit</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">eventname</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">eventname</span> <span class="k">in</span> <span class="k">this</span><span class="p">.</span><span class="nx">listeners</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">args</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">listeners</span><span class="p">[</span> <span class="nx">eventname</span> <span class="p">].</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">listener</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">listener</span><span class="p">.</span><span class="nx">f</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span> <span class="nx">listener</span><span class="p">.</span><span class="nx">c</span><span class="p">,</span> <span class="nx">args</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">);</span>
+      <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+
+  <span class="nx">exports</span><span class="p">.</span><span class="nx">EventEmitter</span> <span class="o">=</span> <span class="nx">EventEmitter</span><span class="p">;</span>
+
+<span class="p">})(</span><span class="nb">window</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h3>Request</h3>
 
 <p>Request is a simplification of AJAX requests made through <code>XMLHttpRequest</code></p>
 
@@ -22,10 +49,7 @@ request.on('success', ..);
 request.get('http://jabber.wocky.org/dog/');
 </code></pre>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
 
-  <span class="kd">var</span> <span class="nx">Request</span><span class="p">;</span>
-
-  <span class="nx">Request</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">listeners</span> <span class="o">=</span> <span class="p">{};</span>
+  <span class="kd">function</span> <span class="nx">Request</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">xhp</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">();</span>
     <span class="kd">var</span> <span class="nx">reqcontext</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
@@ -35,7 +59,8 @@ request.get('http://jabber.wocky.org/dog/');
       <span class="nx">errored</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">reqcontext</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
     <span class="p">});</span>
     <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
-  <span class="p">};</span>
+  <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>inherit from EventEmitter</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">Request</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventEmitter</span><span class="p">();</span>
+  <span class="nx">Request</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">=</span> <span class="nx">Request</span><span class="p">;</span>
   <span class="nx">exports</span><span class="p">.</span><span class="nx">Request</span> <span class="o">=</span> <span class="nx">Request</span><span class="p">;</span>
 
   <span class="nx">Request</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">get</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span> <span class="p">{</span>
@@ -43,24 +68,13 @@ request.get('http://jabber.wocky.org/dog/');
     <span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">send</span><span class="p">();</span>
   <span class="p">};</span>
 
-  <span class="nx">Request</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">on</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">eventname</span><span class="p">,</span> <span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="p">(</span><span class="nx">eventname</span> <span class="k">in</span> <span class="k">this</span><span class="p">.</span><span class="nx">listeners</span><span class="p">)</span> <span class="p">)</span> <span class="p">{</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">listeners</span><span class="p">[</span> <span class="nx">eventname</span> <span class="p">]</span> <span class="o">=</span> <span class="p">[];</span>
-    <span class="p">}</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">listeners</span><span class="p">[</span> <span class="nx">eventname</span> <span class="p">].</span><span class="nx">push</span><span class="p">({</span> <span class="nx">f</span><span class="o">:</span> <span class="nx">callback</span><span class="p">,</span> <span class="nx">c</span><span class="o">:</span> <span class="nx">context</span> <span class="o">||</span> <span class="k">this</span> <span class="p">});</span>
-  <span class="p">};</span>
-
   <span class="kd">function</span> <span class="nx">loaded</span> <span class="p">(</span><span class="nx">ev</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span> <span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">status</span><span class="p">.</span><span class="nx">toString</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">===</span> <span class="s1">&#39;2&#39;</span> <span class="p">)</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;success&#39;</span> <span class="k">in</span> <span class="k">this</span><span class="p">.</span><span class="nx">listeners</span><span class="p">)</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
-        <span class="k">try</span> <span class="p">{</span>
-          <span class="nx">data</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">responseText</span><span class="p">);</span>
-        <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">listeners</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">].</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">listener</span><span class="p">)</span> <span class="p">{</span>
-          <span class="nx">listener</span><span class="p">.</span><span class="nx">f</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">listener</span><span class="p">.</span><span class="nx">c</span><span class="p">,</span> <span class="nx">data</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">responseText</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">statusText</span><span class="p">);</span>
-        <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
-      <span class="p">}</span>
+      <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+      <span class="k">try</span> <span class="p">{</span>
+        <span class="nx">data</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">responseText</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;success&#39;</span><span class="p">,</span> <span class="nx">data</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">responseText</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">statusText</span><span class="p">);</span>
     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
       <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Successful request with non-2XX status.&#39;</span><span class="p">);</span>
       <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">);</span>
@@ -68,29 +82,18 @@ request.get('http://jabber.wocky.org/dog/');
   <span class="p">}</span>
 
   <span class="kd">function</span> <span class="nx">errored</span> <span class="p">(</span><span class="nx">ev</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;error&#39;</span> <span class="k">in</span> <span class="k">this</span><span class="p">.</span><span class="nx">listeners</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">this</span><span class="p">.</span><span class="nx">listeners</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">].</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">listener</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">listener</span><span class="p">.</span><span class="nx">f</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">listener</span><span class="p">.</span><span class="nx">c</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">statusText</span><span class="p">);</span>
-      <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
-    <span class="p">}</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">statusText</span><span class="p">);</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Unsuccessful request.&#39;</span><span class="p">);</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">);</span>
   <span class="p">}</span>
 
-<span class="p">})(</span><span class="nb">window</span><span class="p">.</span><span class="nx">JaxLib</span> <span class="o">=</span> <span class="p">{});</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h3>dogjs</h3>
+<span class="p">})(</span><span class="nb">window</span><span class="p">.</span><span class="nx">JaxLib</span> <span class="o">=</span> <span class="p">{});</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <h3>dogjs</h3>
 
 <p>Connects to dog servers</p>
 
-<p>Prereqs: To be used in <em>modern</em> browsers</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
+<p>Prereqs: To be used in <em>modern</em> browsers</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>dogjs is an augmented EventEmitter instance</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">var</span> <span class="nx">dogjs</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventEmitter</span><span class="p">();</span>
+  <span class="nx">exports</span><span class="p">.</span><span class="nx">dogjs</span> <span class="o">=</span> <span class="nx">dogjs</span><span class="p">;</span>
 
-  <span class="nb">document</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;DOMContentLoaded&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">request</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">JaxLib</span><span class="p">.</span><span class="nx">Request</span><span class="p">();</span>
-    <span class="nx">request</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;success&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
-      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span> <span class="nx">data</span><span class="p">[</span><span class="s1">&#39;msg&#39;</span><span class="p">]</span> <span class="p">);</span>
-    <span class="p">});</span>
-    <span class="nx">request</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;http://localhost:8080/helloworld&#39;</span><span class="p">);</span>
-  <span class="p">},</span> <span class="kc">false</span><span class="p">);</span>
-
-<span class="p">})(</span><span class="nb">window</span><span class="p">.</span><span class="nx">dogjs</span> <span class="o">=</span> <span class="p">{});</span>
+<span class="p">})(</span><span class="nb">window</span><span class="p">);</span>
 
 </pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
