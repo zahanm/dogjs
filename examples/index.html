@@ -5,17 +5,25 @@
 </head>
 <body>
 
-  <section task="say_name">
-    <form action="/hello" method="post">
-      <p>What is your name?</p>
-      <p><input type="text" name="name" placeholder="Write here"></p>
-    </form>
-  </section>
+  <dog>
 
-  <section notify="hello">
-    <h2>{{ title }}</h2>
-    <p>{{ body }}</p>
-  </section>
+    <form action="/hello" method="post" task="say_name">
+      <p>What is your name?</p>
+      <p><textarea name="name" placeholder="Write here"></textarea></p>
+    </form>
+
+    <section notify="hello">
+      <h2>{{ title }}</h2>
+      <p>{{ body }}</p>
+    </section>
+
+  </dog>
+
+  <div>
+    <h2>Allo</h2>
+    <div id="content">
+    </div>
+  </div>
 
   <script src="/dog.js" type="text/javascript" charset="utf-8"></script>
 </body>

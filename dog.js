@@ -3,6 +3,11 @@
 // ### HTML Structure
 // Each Dog structure has a matching HTML implementation
 //
+// These templates are kept together in a section for dog
+// templates only, the `<dog> .. </dog>` tag.
+// Convention places this section at the top of your HTML
+// file.
+//
 // #### notification
 //
 //     <section notify="notification_name">
@@ -136,13 +141,34 @@
   var dogjs = new EventEmitter();
 
   document.addEventListener('DOMContentLoaded', function() {
-    var sections, tasks, notifys;
-    sections = document.getElementsByTagName('section');
-    Array.prototype.forEach.call(sections, function (section) {
-      if (section.attributes['task'] === undefined && section.attributes['oneach'] === undefined) {
-        section.style.display = 'none';
+    var elems, dogblock;
+    elems = document.getElementsByTagName('dog');
+    if (!elems.length) {
+      console.error('Missing <dog> .. </dog> templates section');
+      console.error('Aborting');
+      return;
+    }
+    dogblock = elems[0];
+    dogblock.style.display = 'none';
+
+    var tasks = {},
+      oneachs = {},
+      notifys = {};
+    elems = dogblock.getElementsByTagName('form');
+    Array.prototype.forEach.call(elems, function (elem) {
+      if (elem.attributes['task']) {
+        tasks[ elem.attributes['task'].value ] = elem;
       }
     });
+    elems = dogblock.getElementsByTagName('section');
+    Array.prototype.forEach.call(elems, function (elem) {
+      if (elem.attributes['notify']) {
+        notifys[ elem.attributes['notify'].value ] = elem;
+      } else if (elem.attributes['oneach']) {
+        oneachs[ elem.attributes['oneach'].value ] = elem;
+      }
+    });
+
   }, false);
 
   exports.dogjs = dogjs;

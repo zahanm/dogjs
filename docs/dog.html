@@ -4,6 +4,11 @@
 
 <p>Each Dog structure has a matching HTML implementation</p>
 
+<p>These templates are kept together in a section for dog
+templates only, the <code>&lt;dog&gt; .. &lt;/dog&gt;</code> tag.
+Convention places this section at the top of your HTML
+file.</p>
+
 <h4>notification</h4>
 
 <pre><code>&lt;section notify="notification_name"&gt;
@@ -123,13 +128,34 @@ request.get('http://jabber.wocky.org/dog/');
   <span class="s1">&#39;use strict&#39;</span><span class="p">;</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p><code>dogjs</code> is an augmented EventEmitter instance</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">var</span> <span class="nx">dogjs</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventEmitter</span><span class="p">();</span>
 
   <span class="nb">document</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;DOMContentLoaded&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">sections</span><span class="p">,</span> <span class="nx">tasks</span><span class="p">,</span> <span class="nx">notifys</span><span class="p">;</span>
-    <span class="nx">sections</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">&#39;section&#39;</span><span class="p">);</span>
-    <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">forEach</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">sections</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">section</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">section</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">]</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="o">&amp;&amp;</span> <span class="nx">section</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;oneach&#39;</span><span class="p">]</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">section</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">elems</span><span class="p">,</span> <span class="nx">dogblock</span><span class="p">;</span>
+    <span class="nx">elems</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">&#39;dog&#39;</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">elems</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Missing &lt;dog&gt; .. &lt;/dog&gt; templates section&#39;</span><span class="p">);</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Aborting&#39;</span><span class="p">);</span>
+      <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nx">dogblock</span> <span class="o">=</span> <span class="nx">elems</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+    <span class="nx">dogblock</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span><span class="p">;</span>
+
+    <span class="kd">var</span> <span class="nx">tasks</span> <span class="o">=</span> <span class="p">{},</span>
+      <span class="nx">oneachs</span> <span class="o">=</span> <span class="p">{},</span>
+      <span class="nx">notifys</span> <span class="o">=</span> <span class="p">{};</span>
+    <span class="nx">elems</span> <span class="o">=</span> <span class="nx">dogblock</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">&#39;form&#39;</span><span class="p">);</span>
+    <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">forEach</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">elems</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">elem</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">elem</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">])</span> <span class="p">{</span>
+        <span class="nx">tasks</span><span class="p">[</span> <span class="nx">elem</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">].</span><span class="nx">value</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">elem</span><span class="p">;</span>
       <span class="p">}</span>
     <span class="p">});</span>
+    <span class="nx">elems</span> <span class="o">=</span> <span class="nx">dogblock</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">&#39;section&#39;</span><span class="p">);</span>
+    <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">forEach</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">elems</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">elem</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">elem</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;notify&#39;</span><span class="p">])</span> <span class="p">{</span>
+        <span class="nx">notifys</span><span class="p">[</span> <span class="nx">elem</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;notify&#39;</span><span class="p">].</span><span class="nx">value</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">elem</span><span class="p">;</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">elem</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;oneach&#39;</span><span class="p">])</span> <span class="p">{</span>
+        <span class="nx">oneachs</span><span class="p">[</span> <span class="nx">elem</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;oneach&#39;</span><span class="p">].</span><span class="nx">value</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">elem</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+
   <span class="p">},</span> <span class="kc">false</span><span class="p">);</span>
 
   <span class="nx">exports</span><span class="p">.</span><span class="nx">dogjs</span> <span class="o">=</span> <span class="nx">dogjs</span><span class="p">;</span>

@@ -23,15 +23,6 @@ server.get('/dog.js', function(req, res) {
   res.sendfile( path.resolve( __dirname, '../dog.js' ) );
 });
 
-server.post('/hello', function (req, res) {
-  res.contentType('text/html');
-  res.send('<h2>Hello, ' + req.body['name'] + '</h2>');
-});
-
-server.get('/helloworld', function(req, res) {
-  res.send(json('Hello world'));
-});
-
 // Dog API section
 
 var event1, task1, task2, task3, msg1, msg2, track1, track2, tasks, msgs, tracks;
