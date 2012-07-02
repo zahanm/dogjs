@@ -20,7 +20,7 @@ server.get('/', function(req, res) {
 
 server.get('/dog.js', function(req, res) {
   res.contentType('text/javascript');
-  res.sendfile( path.resolve( __dirname, '../dog.js' ) );
+  res.sendfile( path.resolve( __dirname, '../../dog.js' ) );
 });
 
 // Dog API section
