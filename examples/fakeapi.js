@@ -8,6 +8,7 @@ server = express.createServer();
 
 server.configure(function() {
   server.use(express.logger('short'));
+  server.use(express.bodyParser());
   server.use(jsonType);
   server.use(server.router);
 });
@@ -20,6 +21,11 @@ server.get('/', function(req, res) {
 server.get('/dog.js', function(req, res) {
   res.contentType('text/javascript');
   res.sendfile( path.resolve( __dirname, '../dog.js' ) );
+});
+
+server.post('/hello', function (req, res) {
+  res.contentType('text/html');
+  res.send('<h2>Hello, ' + req.body['name'] + '</h2>');
 });
 
 server.get('/helloworld', function(req, res) {

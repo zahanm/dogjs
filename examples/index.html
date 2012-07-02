@@ -4,29 +4,19 @@
   <title>Example for dog.js</title>
 </head>
 <body>
-  <div>
-    <h3>Hi there</h3>
-  </div>
+
+  <section task="say_name">
+    <form action="/hello" method="post">
+      <p>What is your name?</p>
+      <p><input type="text" name="name" placeholder="Write here"></p>
+    </form>
+  </section>
+
+  <section notify="hello">
+    <h2>{{ title }}</h2>
+    <p>{{ body }}</p>
+  </section>
+
   <script src="/dog.js" type="text/javascript" charset="utf-8"></script>
-  <script type="text/javascript" charset="utf-8">
-
-  // Test JaxLib.Request
-  document.addEventListener('DOMContentLoaded', function() {
-    var request = new Request();
-    request.on('success', function(data) {
-      console.log( data['msg'] );
-    });
-    request.get('http://localhost:8080/helloworld');
-  }, false);
-
-  // Test dogjs
-  setTimeout(function() {
-    dogjs.emit('message', { body: 'And hello again.' });
-  }, 100);
-  dogjs.on('message', function(data) {
-    console.log(data['body']);
-  });
-
-  </script>
 </body>
 </html>

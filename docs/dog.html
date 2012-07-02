@@ -1,4 +1,32 @@
-<!DOCTYPE html>  <html> <head>   <title>dog.js</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               dog.js             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <h3>EventEmitter</h3>
+<!DOCTYPE html>  <html> <head>   <title>dog.js</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               dog.js             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>Prereqs: To be used in <em>modern</em> browsers</p>
+
+<h3>HTML Structure</h3>
+
+<p>Each Dog structure has a matching HTML implementation</p>
+
+<h4>notification</h4>
+
+<pre><code>&lt;section notify="notification_name"&gt;
+  .. {{ title }} .. {{ body }} ..
+&lt;/section&gt;
+</code></pre>
+
+<h4>task</h4>
+
+<pre><code>&lt;form task="task_name"&gt;
+  &lt;input type="text" name="input_name"&gt;
+&lt;/form&gt;
+</code></pre>
+
+<h3>Events</h3>
+
+<p>You register listeners for events that can execute arbitrary javascript
+with the contents of a message, for instance</p>
+
+<pre><code>dogjs.on('message', function (data) {
+  console.log( data['title'], data['body'] );
+});
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h2>EventEmitter</h2>
 
 <p>Emits events, and can be inherited from.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
   <span class="s1">&#39;use strict&#39;</span><span class="p">;</span>
@@ -26,7 +54,7 @@
 
   <span class="nx">exports</span><span class="p">.</span><span class="nx">EventEmitter</span> <span class="o">=</span> <span class="nx">EventEmitter</span><span class="p">;</span>
 
-<span class="p">}(</span><span class="nb">window</span><span class="p">));</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h3>Request</h3>
+<span class="p">}(</span><span class="nb">window</span><span class="p">));</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <h2>Request</h2>
 
 <p>Request is a simplification of AJAX requests made through <code>XMLHttpRequest</code></p>
 
@@ -80,21 +108,30 @@ request.get('http://jabber.wocky.org/dog/');
       <span class="nx">errored</span><span class="p">(</span><span class="nx">req</span><span class="p">);</span>
     <span class="p">});</span>
     <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
-  <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>inherit from EventEmitter</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">Request</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventEmitter</span><span class="p">();</span>
+  <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>inherit from EventEmitter</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">Request</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventEmitter</span><span class="p">();</span>
   <span class="nx">Request</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">=</span> <span class="nx">Request</span><span class="p">;</span>
   <span class="nx">Request</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">__super__</span> <span class="o">=</span> <span class="nx">EventEmitter</span><span class="p">.</span><span class="nx">prototype</span><span class="p">;</span>
 
   <span class="nx">Request</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">get</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">url</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="nx">url</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">send</span><span class="p">();</span>
-  <span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>make Request public</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">exports</span><span class="p">.</span><span class="nx">Request</span> <span class="o">=</span> <span class="nx">Request</span><span class="p">;</span>
+  <span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>make Request public</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">exports</span><span class="p">.</span><span class="nx">Request</span> <span class="o">=</span> <span class="nx">Request</span><span class="p">;</span>
 
-<span class="p">}(</span><span class="nb">window</span><span class="p">));</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <h3>dogjs</h3>
+<span class="p">}(</span><span class="nb">window</span><span class="p">));</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <h2>dogjs</h2>
 
-<p>Connects to dog servers</p>
+<p>Connects to dog servers</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
+  <span class="s1">&#39;use strict&#39;</span><span class="p">;</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p><code>dogjs</code> is an augmented EventEmitter instance</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">var</span> <span class="nx">dogjs</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventEmitter</span><span class="p">();</span>
 
-<p>Prereqs: To be used in <em>modern</em> browsers</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
-  <span class="s1">&#39;use strict&#39;</span><span class="p">;</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p><code>dogjs</code> is an augmented EventEmitter instance</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">var</span> <span class="nx">dogjs</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventEmitter</span><span class="p">();</span>
+  <span class="nb">document</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;DOMContentLoaded&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">sections</span><span class="p">,</span> <span class="nx">tasks</span><span class="p">,</span> <span class="nx">notifys</span><span class="p">;</span>
+    <span class="nx">sections</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">&#39;section&#39;</span><span class="p">);</span>
+    <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">forEach</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">sections</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">section</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">section</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">]</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="o">&amp;&amp;</span> <span class="nx">section</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;oneach&#39;</span><span class="p">]</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">section</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">},</span> <span class="kc">false</span><span class="p">);</span>
+
   <span class="nx">exports</span><span class="p">.</span><span class="nx">dogjs</span> <span class="o">=</span> <span class="nx">dogjs</span><span class="p">;</span>
 
 <span class="p">}(</span><span class="nb">window</span><span class="p">));</span>

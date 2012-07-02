@@ -1,4 +1,30 @@
-// ### EventEmitter
+// Prereqs: To be used in *modern* browsers
+//
+// ### HTML Structure
+// Each Dog structure has a matching HTML implementation
+//
+// #### notification
+//
+//     <section notify="notification_name">
+//       .. {{ title }} .. {{ body }} ..
+//     </section>
+//
+// #### task
+//
+//     <form task="task_name">
+//       <input type="text" name="input_name">
+//     </form>
+//
+// ### Events
+// You register listeners for events that can execute arbitrary javascript
+// with the contents of a message, for instance
+//
+//     dogjs.on('message', function (data) {
+//       console.log( data['title'], data['body'] );
+//     });
+//
+
+// ## EventEmitter
 //
 // Emits events, and can be inherited from.
 //
@@ -30,7 +56,7 @@
 
 }(window));
 
-// ### Request
+// ## Request
 //
 // Request is a simplification of AJAX requests made through `XMLHttpRequest`
 //
@@ -99,17 +125,26 @@
 
 }(window));
 
-// ### dogjs
+// ## dogjs
 //
 // Connects to dog servers
-//
-// Prereqs: To be used in *modern* browsers
 //
 (function (exports) {
   'use strict';
 
   // `dogjs` is an augmented EventEmitter instance
   var dogjs = new EventEmitter();
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var sections, tasks, notifys;
+    sections = document.getElementsByTagName('section');
+    Array.prototype.forEach.call(sections, function (section) {
+      if (section.attributes['task'] === undefined && section.attributes['oneach'] === undefined) {
+        section.style.display = 'none';
+      }
+    });
+  }, false);
+
   exports.dogjs = dogjs;
 
 }(window));
