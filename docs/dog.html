@@ -11,21 +11,21 @@ file.</p>
 
 <h4>notification</h4>
 
-<pre><code>&lt;section notify="notification_name"&gt;
+<pre><code>&lt;section notify="notification_name" target="selector"&gt;
   {{ title }} .. {{ body }}
 &lt;/section&gt;
 </code></pre>
 
 <h4>task</h4>
 
-<pre><code>&lt;form task="task_name"&gt;
+<pre><code>&lt;form task="task_name" target="selector"&gt;
   &lt;input type="text" name="input_name"&gt;
 &lt;/form&gt;
 </code></pre>
 
 <h4>listen</h4>
 
-<pre><code>&lt;form listen="listen_name"&gt;
+<pre><code>&lt;form listen="listen_name" target="selector"&gt;
   &lt;input type="text" name="input_name"&gt;
 &lt;/form&gt;
 </code></pre>
@@ -38,7 +38,13 @@ with the contents of a message, for instance</p>
 <pre><code>dogjs.on('message', function (data) {
   console.log( data['title'], data['body'] );
 });
-</code></pre>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h2>EventEmitter</h2>
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="nx">exports</span><span class="p">.</span><span class="nx">last</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">arrlike</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">arrlike</span><span class="p">[</span><span class="nx">arrlike</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+  <span class="p">}</span>
+
+<span class="p">}(</span><span class="nb">window</span><span class="p">.</span><span class="nx">Utilities</span> <span class="o">=</span> <span class="p">{}));</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h2>EventEmitter</h2>
 
 <p>Emits events, and can be inherited from.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
   <span class="s1">&#39;use strict&#39;</span><span class="p">;</span>
@@ -94,7 +100,7 @@ request.get('http://jabber.wocky.org/dog/');
     <span class="kd">var</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">qsarr</span> <span class="o">=</span> <span class="p">[];</span>
     <span class="k">for</span> <span class="p">(</span><span class="nx">key</span> <span class="k">in</span> <span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="nx">key</span><span class="p">))</span> <span class="p">{</span>
-        <span class="nx">qsarr</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span> <span class="nx">key</span> <span class="o">+</span> <span class="s1">&#39;=&#39;</span> <span class="o">+</span> <span class="nb">String</span><span class="p">(</span><span class="nx">data</span><span class="p">[</span><span class="nx">key</span><span class="p">])</span> <span class="p">);</span>
+        <span class="nx">qsarr</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span> <span class="nb">encodeURIComponent</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;=&#39;</span> <span class="o">+</span> <span class="nb">encodeURIComponent</span><span class="p">(</span><span class="nb">String</span><span class="p">(</span><span class="nx">data</span><span class="p">[</span><span class="nx">key</span><span class="p">]))</span> <span class="p">);</span>
       <span class="p">}</span>
     <span class="p">}</span>
     <span class="k">return</span> <span class="nx">qsarr</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;&amp;&#39;</span><span class="p">);</span>
@@ -144,8 +150,35 @@ request.get('http://jabber.wocky.org/dog/');
   <span class="s1">&#39;use strict&#39;</span><span class="p">;</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p><code>dogjs</code> is an augmented EventEmitter instance</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">var</span> <span class="nx">dogjs</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventEmitter</span><span class="p">();</span>
 
   <span class="kd">function</span> <span class="nx">onpoll</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">[</span><span class="s1">&#39;items&#39;</span><span class="p">]);</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">repeats</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>repoll in 2 seconds</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">repoll</span><span class="p">,</span> <span class="mi">2000</span><span class="p">);</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">repeats</span><span class="p">);</span>
+    <span class="nx">data</span><span class="p">[</span><span class="s1">&#39;items&#39;</span><span class="p">].</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">switch</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">case</span> <span class="s1">&#39;task&#39;</span><span class="o">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">Utilities</span><span class="p">.</span><span class="nx">last</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="k">in</span> <span class="nx">tasks</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>XXX TODO</p>             </td>             <td class="code">               <div class="highlight"><pre>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+              <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;No task template for item&#39;</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
+              <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">break</span><span class="p">;</span>
+          <span class="k">case</span> <span class="s1">&#39;event&#39;</span><span class="o">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">Utilities</span><span class="p">.</span><span class="nx">last</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="k">in</span> <span class="nx">listens</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>XXX TODO</p>             </td>             <td class="code">               <div class="highlight"><pre>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+              <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;No listen template for item&#39;</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
+              <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">break</span><span class="p">;</span>
+          <span class="k">case</span> <span class="s1">&#39;message&#39;</span><span class="o">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">Utilities</span><span class="p">.</span><span class="nx">last</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="k">in</span> <span class="nx">notifys</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>XXX TODO</p>             </td>             <td class="code">               <div class="highlight"><pre>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+              <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;No notify template for item&#39;</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
+              <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">break</span><span class="p">;</span>
+          <span class="k">default</span><span class="o">:</span>
+        <span class="p">}</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;No name for item&#39;</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <p>repoll in 2 seconds</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">repoll</span><span class="p">,</span> <span class="mi">2000</span><span class="p">);</span>
   <span class="p">}</span>
 
   <span class="kd">var</span> <span class="nx">repeats</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// DEBUG</span>

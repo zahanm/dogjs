@@ -10,19 +10,19 @@
 //
 // #### notification
 //
-//     <section notify="notification_name">
+//     <section notify="notification_name" target="selector">
 //       {{ title }} .. {{ body }}
 //     </section>
 //
 // #### task
 //
-//     <form task="task_name">
+//     <form task="task_name" target="selector">
 //       <input type="text" name="input_name">
 //     </form>
 //
 // #### listen
 //
-//     <form listen="listen_name">
+//     <form listen="listen_name" target="selector">
 //       <input type="text" name="input_name">
 //     </form>
 //
@@ -34,6 +34,14 @@
 //       console.log( data['title'], data['body'] );
 //     });
 //
+(function (exports) {
+
+  exports.last = function (arrlike) {
+    return arrlike[arrlike.length - 1];
+  }
+
+}(window.Utilities = {}));
+
 
 // ## EventEmitter
 //
@@ -94,7 +102,7 @@
     var key, qsarr = [];
     for (key in data) {
       if (data.hasOwnProperty(key)) {
-        qsarr.push( key + '=' + String(data[key]) );
+        qsarr.push( encodeURIComponent(key) + '=' + encodeURIComponent(String(data[key])) );
       }
     }
     return qsarr.join('&');
@@ -158,8 +166,41 @@
   var dogjs = new EventEmitter();
 
   function onpoll(data) {
-    console.log(data['items']);
     console.log(repeats);
+    data['items'].forEach(function (item) {
+      if (item.name.length) {
+        switch(item.type) {
+          case 'task':
+            if (Utilities.last(item.name) in tasks) {
+              // XXX TODO
+            } else {
+              console.error('No task template for item', item);
+              return;
+            }
+            break;
+          case 'event':
+            if (Utilities.last(item.name) in listens) {
+              // XXX TODO
+            } else {
+              console.error('No listen template for item', item);
+              return;
+            }
+            break;
+          case 'message':
+            if (Utilities.last(item.name) in notifys) {
+              // XXX TODO
+            } else {
+              console.error('No notify template for item', item);
+              return;
+            }
+            break;
+          default:
+        }
+      } else {
+        console.error('No name for item', item);
+        return;
+      }
+    });
     // repoll in 2 seconds
     setTimeout(repoll, 2000);
   }

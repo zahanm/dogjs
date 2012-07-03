@@ -25,15 +25,34 @@ server.get('/dog.js', function(req, res) {
 
 // Dog API section
 
-var poll = [];
+var poll = [], event1;
+
+event1 = {
+  type: "event",
+  timestamp: "2012-06-23T15:30:22.591Z",
+  id: "VoojLPmRpeyg",
+  track_id: "TyFmJoRMj1Fj",
+  name: [ "tweets" ],
+  input: [ ],
+  output: [ ]
+};
 
 // poll stream
 
 server.get('/dog/stream/poll.json', function(req, res) {
   console.info('after', req.query['after']);
-  poll.push(poll.length);
   res.send(json({
     items: poll
+  }));
+});
+
+server.post('/tweet', function (req, res) {
+  poll.push({
+    username: req.body['username'],
+    status: req.body['status']
+  });
+  res.send(json({
+    success: true
   }));
 });
 
