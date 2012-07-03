@@ -6,7 +6,7 @@ tweet = event {
   input status
 }
 
-LISTEN TO PUBLIC FOR tweets AT "/tweet"
+LISTEN TO PUBLIC FOR tweets
 
 ON EACH tweet DO
     NOTIFY PUBLIC OF tweet

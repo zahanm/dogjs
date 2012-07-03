@@ -14,9 +14,9 @@
 //       {{ title }} .. {{ body }}
 //     </section>
 //
-// #### task
+// #### ask
 //
-//     <form task="task_name" target="selector">
+//     <form ask="task_name" target="selector">
 //       <input type="text" name="input_name">
 //     </form>
 //
