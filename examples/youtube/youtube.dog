@@ -1,0 +1,32 @@
+#========================================#
+#           Data Structures              #
+#========================================#
+
+video = event {
+  input title
+  input description
+  input file
+}
+
+star_rating = event {
+  input rating
+}
+
+#========================================#
+#                 Main                   #
+#========================================#
+
+LISTEN TO PUBLIC FOR videos
+
+ON EACH video DO
+  rating_count = 1
+  rating = 3
+  LISTEN TO PUBLIC FOR star_rating
+  ON EACH star_rating DO
+    parent.rating = ( parent.rating * parent.rating_count + star_rating.rating ) / ( parent.rating_count + 1 )
+    parent.rating_count += 1
+    NOTIFY PUBLIC OF parent.rating
+  END
+  NOTIFY PUBLIC OF video
+  NOTIFY PUBLIC OF rating
+END
