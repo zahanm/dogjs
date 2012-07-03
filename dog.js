@@ -44,7 +44,6 @@
 
   function EventEmitter() {
     this.listeners = {};
-    return this;
   }
 
   EventEmitter.prototype.on = function (eventname, callback, context) {
@@ -91,6 +90,16 @@
 (function (exports) {
   'use strict';
 
+  function toqs(data) {
+    var key, qsarr = [];
+    for (key in data) {
+      if (data.hasOwnProperty(key)) {
+        qsarr.push( key + '=' + String(data[key]) );
+      }
+    }
+    return qsarr.join('&');
+  }
+
   function loaded(req) {
     if (req.xhp.status.toString()[0] === '2') {
       var data = null;
@@ -111,6 +120,8 @@
   }
 
   function Request() {
+    // Call parent constructor
+    this.__super__.constructor.call(this);
     this.xhp = new XMLHttpRequest();
     var req = this;
     this.xhp.addEventListener("load", function () {
@@ -119,14 +130,14 @@
     this.xhp.addEventListener("error", function () {
       errored(req);
     });
-    return this;
   }
   // inherit from EventEmitter
   Request.prototype = new EventEmitter();
   Request.prototype.constructor = Request;
   Request.prototype.__super__ = EventEmitter.prototype;
 
-  Request.prototype.get = function (url) {
+  Request.prototype.get = function (url, data) {
+    url += '?' + toqs(data);
     this.xhp.open('GET', url, true);
     this.xhp.send();
   };
@@ -146,6 +157,23 @@
   // `dogjs` is an augmented EventEmitter instance
   var dogjs = new EventEmitter();
 
+  function onpoll(data) {
+    console.log(data['items']);
+    console.log(repeats);
+    // repoll in 2 seconds
+    setTimeout(repoll, 2000);
+  }
+
+  var repeats = 0; // DEBUG
+  function repoll() {
+    repeats++; // DEBUG
+    if (repeats > 5) { return; } // DEBUG
+    var poll = new Request();
+    dogjs.lastpolled = new Date();
+    poll.on('success', onpoll);
+    poll.get('/dog/stream/poll.json', { 'after': dogjs.lastpolled.toISOString() });
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     var elems, dogblock;
     elems = document.getElementsByTagName('dog');
@@ -157,24 +185,28 @@
     dogblock = elems[0];
     dogblock.style.display = 'none';
 
-    var tasks = {},
-      oneachs = {},
-      notifys = {};
+    dogjs.tasks = {};
+    dogjs.oneachs = {};
+    dogjs.listens = {};
+    dogjs.notifys = { 'test': 123 };
     elems = dogblock.getElementsByTagName('form');
     Array.prototype.forEach.call(elems, function (elem) {
       if (elem.attributes['task']) {
-        tasks[ elem.attributes['task'].value ] = elem;
+        dogjs.tasks[ elem.attributes['task'].value ] = elem;
+      } else if (elem.attributes['listen']) {
+        dogjs.listens[ elem.attributes['listen'].value ] = elem;
       }
     });
     elems = dogblock.getElementsByTagName('section');
     Array.prototype.forEach.call(elems, function (elem) {
       if (elem.attributes['notify']) {
-        notifys[ elem.attributes['notify'].value ] = elem;
+        dogjs.notifys[ elem.attributes['notify'].value ] = elem;
       } else if (elem.attributes['oneach']) {
-        oneachs[ elem.attributes['oneach'].value ] = elem;
+        dogjs.oneachs[ elem.attributes['oneach'].value ] = elem;
       }
     });
 
+    repoll();
   }, false);
 
   exports.dogjs = dogjs;
