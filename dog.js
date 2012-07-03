@@ -34,6 +34,40 @@
 //       console.log( data['title'], data['body'] );
 //     });
 //
+// ### Target
+// The `target` attribute in the source node is used to specify what the
+// target node should be.
+// Usually, takes the form of a CSS selector, that should specify single DOM node.
+//
+//     <form listen=".." target="#tweetbox">
+//       ..
+//     </form>
+//
+// Can also be the special value `dialog`, which targets a modal dialog that is
+// created for this element.
+//
+// ### Method
+// The `method` attribute in the target node is used to specify
+// how the node is updated
+//
+// #### append
+// Append a new child of the target node
+//
+// #### prepend
+// Add a new child at the beginning of the target node
+//
+// #### enqueue
+// Maintain queue for node, when current node clears
+//
+// #### overwrite
+// Always overwrite target node
+//
+// #### update
+// Same as overwrite, except only triggered when it's the same object
+//
+// #### fill
+// Currently called `replace`, only fill in if target node is empty
+//
 
 // ## Mustache.js (minified)
 //

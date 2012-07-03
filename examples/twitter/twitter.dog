@@ -1,10 +1,15 @@
-
-# The following Dog code corresponds to the fake api
+#========================================#
+#           Data Structures              #
+#========================================#
 
 tweet = event {
   input username
   input status
 }
+
+#========================================#
+#                 Main                   #
+#========================================#
 
 LISTEN TO PUBLIC FOR tweets
 
@@ -12,6 +17,8 @@ ON EACH tweet DO
     NOTIFY PUBLIC OF tweet
 END
 
+
+====
 # Not sure if the following is supported yet
 #
 # twittersphere = community {
