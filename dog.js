@@ -38,7 +38,26 @@
 
   exports.last = function (arrlike) {
     return arrlike[arrlike.length - 1];
-  }
+  };
+
+  exports.trim = function (strlike) {
+    return strlike.replace(/^\s+|\s+$/g, '');
+  };
+
+  exports.isArray = function (arrlike) {
+    if (Array.isArray) { return Array.isArray(arrlike); }
+    return Object.prototype.toString.call(arrlike) === '[object Array]';
+  };
+
+  exports.isEmpty = function (objlike) {
+    var key;
+    for (key in objlike) {
+      if (objlike.hasOwnProperty(key)) {
+        return false;
+      }
+    }
+    return true;
+  };
 
 }(window.Utilities = {}));
 
@@ -165,40 +184,71 @@
   // `dogjs` is an augmented EventEmitter instance
   var dogjs = new EventEmitter();
 
+  function itemerror(msg, item) {
+    return console.error(msg, item);
+  }
+
+  function sourcetotarget(sourcenode) {
+    var targetnode, newnode, method;
+    if (sourcenode.attributes['target']) {
+      targetnode = document.querySelector( sourcenode.attributes['target'].value );
+      method = targetnode.attributes['method'] && targetnode.attributes['method'].value || 'replace';
+      switch(method) {
+        case 'replace':
+        if ( !targetnode.hasChildNodes() ) {
+          newnode = sourcenode.cloneNode();
+          if (item.input && !Utilities.isArray(item.input)) {
+            newnode.innerHTML = Mustache.render(sourcenode.innerHTML, item.input);
+          }
+          targetnode.appendChild(newnode);
+        }
+        break;
+        case 'append':
+        newnode = sourcenode.cloneNode();
+        if (item.input && !Utilities.isArray(item.input)) {
+          newnode.innerHTML = Mustache.render(sourcenode.innerHTML, item.input);
+        }
+        targetnode.appendChild(newnode);
+        break;
+        default:
+        return itemerror('Invalid method on target node', targetnode);
+      }
+    } else {
+      return itemerror('No target for source element', item);
+    }
+  }
+
   function onpoll(data) {
     console.log(repeats);
     data['items'].forEach(function (item) {
       if (item.name.length) {
         switch(item.type) {
           case 'task':
-            if (Utilities.last(item.name) in tasks) {
-              // XXX TODO
-            } else {
-              console.error('No task template for item', item);
-              return;
-            }
-            break;
+          if (Utilities.last(item.name) in tasks) {
+            sourcetotarget( tasks[ Utilities.last(item.name) ] );
+          } else {
+            return itemerror('No task template for item', item);
+          }
+          break;
           case 'event':
-            if (Utilities.last(item.name) in listens) {
-              // XXX TODO
-            } else {
-              console.error('No listen template for item', item);
-              return;
-            }
-            break;
+          if (Utilities.last(item.name) in listens) {
+            sourcetotarget( listens[ Utilities.last(item.name) ] );
+          } else {
+            return itemerror('No listen template for item', item);
+          }
+          break;
           case 'message':
-            if (Utilities.last(item.name) in notifys) {
-              // XXX TODO
-            } else {
-              console.error('No notify template for item', item);
-              return;
-            }
-            break;
+          if (Utilities.last(item.name) in notifys) {
+            sourcetotarget( notifys[ Utilities.last(item.name) ] );
+          } else {
+            return itemerror('No notify template for item', item);
+          }
+          break;
           default:
+          itemerror('Invalid type specification for item', item);
         }
       } else {
-        console.error('No name for item', item);
-        return;
+        return itemerror('No name for item', item);
       }
     });
     // repoll in 2 seconds

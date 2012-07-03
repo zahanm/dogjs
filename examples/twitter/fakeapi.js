@@ -25,7 +25,7 @@ server.get('/dog.js', function(req, res) {
 
 // Dog API section
 
-var poll = [], event1;
+var poll = [], event1, tweet1;
 
 event1 = {
   type: "event",
@@ -33,9 +33,31 @@ event1 = {
   id: "VoojLPmRpeyg",
   track_id: "TyFmJoRMj1Fj",
   name: [ "tweets" ],
-  input: [ ],
+  input: [ 'username', 'status' ],
   output: [ ]
 };
+
+tweet1 = {
+  type: "message",
+  timestamp: "2012-06-25T11:10:10.591Z",
+  id: "bmYiaGjNYIRJ",
+  track_id: "bmSADJKLNYIRJ",
+  name: [ "@each:tweets", "tweet" ],
+  input: {
+    username: "",
+    status: ""
+  }
+};
+
+function duplicate(obj) {
+  var dup = {}, key;
+  for (key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      dup[key] = obj[key];
+    }
+  }
+  return dup;
+}
 
 // poll stream
 
@@ -47,10 +69,10 @@ server.get('/dog/stream/poll.json', function(req, res) {
 });
 
 server.post('/tweet', function (req, res) {
-  poll.push({
-    username: req.body['username'],
-    status: req.body['status']
-  });
+  var tweet = duplicate(tweet1);
+  tweet.input['username'] = req.body['username'];
+  tweet.input['status'] = req.body['status'];
+  poll.push(tweet);
   res.send(json({
     success: true
   }));

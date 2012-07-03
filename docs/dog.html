@@ -42,7 +42,26 @@ with the contents of a message, for instance</p>
 
   <span class="nx">exports</span><span class="p">.</span><span class="nx">last</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">arrlike</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">arrlike</span><span class="p">[</span><span class="nx">arrlike</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
-  <span class="p">}</span>
+  <span class="p">};</span>
+
+  <span class="nx">exports</span><span class="p">.</span><span class="nx">trim</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">strlike</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">strlike</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/^\s+|\s+$/g</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">);</span>
+  <span class="p">};</span>
+
+  <span class="nx">exports</span><span class="p">.</span><span class="nx">isArray</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">arrlike</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">arrlike</span><span class="p">);</span> <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">toString</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arrlike</span><span class="p">)</span> <span class="o">===</span> <span class="s1">&#39;[object Array]&#39;</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="nx">exports</span><span class="p">.</span><span class="nx">isEmpty</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">objlike</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">key</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="nx">key</span> <span class="k">in</span> <span class="nx">objlike</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">objlike</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="nx">key</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+  <span class="p">};</span>
 
 <span class="p">}(</span><span class="nb">window</span><span class="p">.</span><span class="nx">Utilities</span> <span class="o">=</span> <span class="p">{}));</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h2>EventEmitter</h2>
 
@@ -149,36 +168,73 @@ request.get('http://jabber.wocky.org/dog/');
 <p>Connects to dog servers</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
   <span class="s1">&#39;use strict&#39;</span><span class="p">;</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p><code>dogjs</code> is an augmented EventEmitter instance</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">var</span> <span class="nx">dogjs</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventEmitter</span><span class="p">();</span>
 
+  <span class="kd">function</span> <span class="nx">itemerror</span><span class="p">(</span><span class="nx">msg</span><span class="p">,</span> <span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">msg</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="kd">function</span> <span class="nx">sourcetotarget</span><span class="p">(</span><span class="nx">sourcenode</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">targetnode</span><span class="p">,</span> <span class="nx">newnode</span><span class="p">,</span> <span class="nx">method</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">sourcenode</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">])</span> <span class="p">{</span>
+      <span class="nx">targetnode</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span> <span class="nx">sourcenode</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">].</span><span class="nx">value</span> <span class="p">);</span>
+      <span class="nx">method</span> <span class="o">=</span> <span class="nx">targetnode</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">targetnode</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">].</span><span class="nx">value</span> <span class="o">||</span> <span class="s1">&#39;replace&#39;</span><span class="p">;</span>
+      <span class="k">switch</span><span class="p">(</span><span class="nx">method</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="s1">&#39;replace&#39;</span><span class="o">:</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nx">targetnode</span><span class="p">.</span><span class="nx">hasChildNodes</span><span class="p">()</span> <span class="p">)</span> <span class="p">{</span>
+          <span class="nx">newnode</span> <span class="o">=</span> <span class="nx">sourcenode</span><span class="p">.</span><span class="nx">cloneNode</span><span class="p">();</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">input</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">Utilities</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">input</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">newnode</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nx">Mustache</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="nx">sourcenode</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">,</span> <span class="nx">item</span><span class="p">.</span><span class="nx">input</span><span class="p">);</span>
+          <span class="p">}</span>
+          <span class="nx">targetnode</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">newnode</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">break</span><span class="p">;</span>
+        <span class="k">case</span> <span class="s1">&#39;append&#39;</span><span class="o">:</span>
+        <span class="nx">newnode</span> <span class="o">=</span> <span class="nx">sourcenode</span><span class="p">.</span><span class="nx">cloneNode</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">input</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">Utilities</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">input</span><span class="p">))</span> <span class="p">{</span>
+          <span class="nx">newnode</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nx">Mustache</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="nx">sourcenode</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">,</span> <span class="nx">item</span><span class="p">.</span><span class="nx">input</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="nx">targetnode</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">newnode</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+        <span class="k">default</span><span class="o">:</span>
+        <span class="k">return</span> <span class="nx">itemerror</span><span class="p">(</span><span class="s1">&#39;Invalid method on target node&#39;</span><span class="p">,</span> <span class="nx">targetnode</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">itemerror</span><span class="p">(</span><span class="s1">&#39;No target for source element&#39;</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
   <span class="kd">function</span> <span class="nx">onpoll</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">repeats</span><span class="p">);</span>
     <span class="nx">data</span><span class="p">[</span><span class="s1">&#39;items&#39;</span><span class="p">].</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">if</span> <span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">switch</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
           <span class="k">case</span> <span class="s1">&#39;task&#39;</span><span class="o">:</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nx">Utilities</span><span class="p">.</span><span class="nx">last</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="k">in</span> <span class="nx">tasks</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>XXX TODO</p>             </td>             <td class="code">               <div class="highlight"><pre>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-              <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;No task template for item&#39;</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
-              <span class="k">return</span><span class="p">;</span>
-            <span class="p">}</span>
-            <span class="k">break</span><span class="p">;</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">Utilities</span><span class="p">.</span><span class="nx">last</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="k">in</span> <span class="nx">tasks</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">sourcetotarget</span><span class="p">(</span> <span class="nx">tasks</span><span class="p">[</span> <span class="nx">Utilities</span><span class="p">.</span><span class="nx">last</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="p">]</span> <span class="p">);</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">itemerror</span><span class="p">(</span><span class="s1">&#39;No task template for item&#39;</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
+          <span class="p">}</span>
+          <span class="k">break</span><span class="p">;</span>
           <span class="k">case</span> <span class="s1">&#39;event&#39;</span><span class="o">:</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nx">Utilities</span><span class="p">.</span><span class="nx">last</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="k">in</span> <span class="nx">listens</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>XXX TODO</p>             </td>             <td class="code">               <div class="highlight"><pre>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-              <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;No listen template for item&#39;</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
-              <span class="k">return</span><span class="p">;</span>
-            <span class="p">}</span>
-            <span class="k">break</span><span class="p">;</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">Utilities</span><span class="p">.</span><span class="nx">last</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="k">in</span> <span class="nx">listens</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">sourcetotarget</span><span class="p">(</span> <span class="nx">listens</span><span class="p">[</span> <span class="nx">Utilities</span><span class="p">.</span><span class="nx">last</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="p">]</span> <span class="p">);</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">itemerror</span><span class="p">(</span><span class="s1">&#39;No listen template for item&#39;</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
+          <span class="p">}</span>
+          <span class="k">break</span><span class="p">;</span>
           <span class="k">case</span> <span class="s1">&#39;message&#39;</span><span class="o">:</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nx">Utilities</span><span class="p">.</span><span class="nx">last</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="k">in</span> <span class="nx">notifys</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>XXX TODO</p>             </td>             <td class="code">               <div class="highlight"><pre>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-              <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;No notify template for item&#39;</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
-              <span class="k">return</span><span class="p">;</span>
-            <span class="p">}</span>
-            <span class="k">break</span><span class="p">;</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">Utilities</span><span class="p">.</span><span class="nx">last</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="k">in</span> <span class="nx">notifys</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">sourcetotarget</span><span class="p">(</span> <span class="nx">notifys</span><span class="p">[</span> <span class="nx">Utilities</span><span class="p">.</span><span class="nx">last</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="p">]</span> <span class="p">);</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">itemerror</span><span class="p">(</span><span class="s1">&#39;No notify template for item&#39;</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
+          <span class="p">}</span>
+          <span class="k">break</span><span class="p">;</span>
           <span class="k">default</span><span class="o">:</span>
+          <span class="nx">itemerror</span><span class="p">(</span><span class="s1">&#39;Invalid type specification for item&#39;</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
         <span class="p">}</span>
       <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;No name for item&#39;</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
-        <span class="k">return</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nx">itemerror</span><span class="p">(</span><span class="s1">&#39;No name for item&#39;</span><span class="p">,</span> <span class="nx">item</span><span class="p">);</span>
       <span class="p">}</span>
-    <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <p>repoll in 2 seconds</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">repoll</span><span class="p">,</span> <span class="mi">2000</span><span class="p">);</span>
+    <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>repoll in 2 seconds</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">repoll</span><span class="p">,</span> <span class="mi">2000</span><span class="p">);</span>
   <span class="p">}</span>
 
   <span class="kd">var</span> <span class="nx">repeats</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// DEBUG</span>
