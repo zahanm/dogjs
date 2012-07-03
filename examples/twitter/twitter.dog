@@ -18,7 +18,9 @@ ON EACH tweet DO
 END
 
 
-====
+#========================================#
+#                Scratch                 #
+#========================================#
 # Not sure if the following is supported yet
 #
 # twittersphere = community {
