@@ -11,12 +11,18 @@
 // #### notification
 //
 //     <section notify="notification_name">
-//       .. {{ title }} .. {{ body }} ..
+//       {{ title }} .. {{ body }}
 //     </section>
 //
 // #### task
 //
 //     <form task="task_name">
+//       <input type="text" name="input_name">
+//     </form>
+//
+// #### listen
+//
+//     <form listen="listen_name">
 //       <input type="text" name="input_name">
 //     </form>
 //

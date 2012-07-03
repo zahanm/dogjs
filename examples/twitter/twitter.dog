@@ -1,0 +1,29 @@
+
+# The following Dog code corresponds to the fake api
+
+tweet = event {
+  input username
+  input status
+}
+
+LISTEN TO PUBLIC FOR tweets AT "/tweet"
+
+ON EACH tweet DO
+    NOTIFY PUBLIC OF tweet
+END
+
+# Not sure if the following is supported yet
+#
+# twittersphere = community {
+#     location
+#     avatar
+#     bio
+#     relationship followers, followees
+#     relationship followees, followers
+# }
+#
+# LISTEN TO twittersphere FOR tweets
+#
+# ON EACH tweet DO
+#   NOTIFY tweeter's followers VIA stream, sms OF status
+# END

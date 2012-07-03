@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Example for dog.js</title>
+</head>
+<body>
+
+  <dog>
+
+    <form action="/tweet" method="post" listen="tweets">
+      <p><label>Username @<input type="text" name="username"></label></p>
+      <p><textarea name="status" placeholder="Compose new Tweet..."></textarea></p>
+    </form>
+
+    <section notify="tweet">
+      <p>@{{ username }} says:</p>
+      <p>{{ status }}</p>
+    </section>
+
+  </dog>
+
+  <div>
+    <h2>Twitter</h2>
+    <div id="post">
+    </div>
+    <div id="stream" method="append">
+    </div>
+  </div>
+
+  <script src="/dog.js" type="text/javascript" charset="utf-8"></script>
+</body>
+</html>
