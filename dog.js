@@ -26,6 +26,12 @@
 //       <input type="text" name="input_name">
 //     </form>
 //
+// #### track
+//
+//     <section track="track_name" target="selector">
+//       .. {{ variable_name }} ..
+//     </section>
+//
 // ### Events
 // You register listeners for events that can execute arbitrary javascript
 // with the contents of a message, for instance
