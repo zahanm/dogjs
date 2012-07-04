@@ -245,17 +245,8 @@
     var targetnode, newnode, method;
     if (sourcenode.attributes['target']) {
       targetnode = document.querySelector( sourcenode.attributes['target'].value );
-      method = targetnode.attributes['method'] && targetnode.attributes['method'].value || 'replace';
+      method = targetnode.attributes['method'] && targetnode.attributes['method'].value;
       switch(method) {
-        case 'replace':
-        if ( !Utilities.trim(targetnode.innerHTML) ) {
-          newnode = sourcenode.cloneNode(true);
-          if (item.input && !Utilities.isArray(item.input)) {
-            newnode.innerHTML = Mustache.render(sourcenode.innerHTML, item.input);
-          }
-          targetnode.appendChild(newnode);
-        }
-        break;
         case 'append':
         newnode = sourcenode.cloneNode(true);
         if (item.input && !Utilities.isArray(item.input)) {
@@ -263,8 +254,15 @@
         }
         targetnode.appendChild(newnode);
         break;
+        case 'replace':
         default:
-        return itemerror('Invalid method on target node', targetnode);
+        if ( !Utilities.trim(targetnode.innerHTML) ) {
+          newnode = sourcenode.cloneNode(true);
+          if (item.input && !Utilities.isArray(item.input)) {
+            newnode.innerHTML = Mustache.render(sourcenode.innerHTML, item.input);
+          }
+          targetnode.appendChild(newnode);
+        }
       }
     } else {
       return itemerror('No target for source element', item);

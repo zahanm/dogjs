@@ -17,10 +17,10 @@ ON EACH tweet DO
     NOTIFY PUBLIC OF tweet
 END
 
-
 #========================================#
 #                Scratch                 #
 #========================================#
+#
 # Not sure if the following is supported yet
 #
 # twittersphere = community {
