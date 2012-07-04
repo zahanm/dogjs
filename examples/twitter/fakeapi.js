@@ -76,7 +76,7 @@ server.get('/dog/stream/poll.json', function(req, res) {
 });
 
 var numposts = 1;
-server.post('/tweet', function (req, res) {
+server.post('/dog/stream/events/:oid.json', function (req, res) {
   var tweet = duplicate(tweet1);
   tweet.input['username'] = req.body['username'];
   tweet.input['status'] = req.body['status'];

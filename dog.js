@@ -261,46 +261,56 @@
     Utilities.assert(sourcenode.attributes['target'], 'No target for source element');
     targetnode = document.querySelector( sourcenode.attributes['target'].value );
     method = targetnode.attributes['method'] && targetnode.attributes['method'].value;
+    newnode = sourcenode.cloneNode(true);
+    if (item.input && !Utilities.isArray(item.input)) {
+      newnode.innerHTML = Mustache.render(sourcenode.innerHTML, item.input);
+    } else {
+      newnode.innerHTML = sourcenode.innerHTML;
+    }
     switch(method) {
       case 'append':
-      newnode = sourcenode.cloneNode(true);
-      if (item.input && !Utilities.isArray(item.input)) {
-        newnode.innerHTML = Mustache.render(sourcenode.innerHTML, item.input);
-      }
       targetnode.appendChild(newnode);
       break;
       case 'replace':
       default:
-      if ( !Utilities.trim(targetnode.innerHTML) ) {
-        newnode = sourcenode.cloneNode(true);
-        if (item.input && !Utilities.isArray(item.input)) {
-          newnode.innerHTML = Mustache.render(sourcenode.innerHTML, item.input);
-        }
-        targetnode.appendChild(newnode);
+      if ( Utilities.trim(targetnode.innerHTML) ) {
+        return null;
       }
+      targetnode.appendChild(newnode);
     }
-    return targetnode;
+    return newnode;
   }
 
   function onpoll(data) {
     // DEBUG
     console.log(repeats);
     data['items'].forEach(function (item) {
-      var targetnode;
+      var newnode;
       Utilities.assert(item.name.length, 'No name for item');
       switch(item.type) {
+        // ask
         case 'task':
         Utilities.assert(Utilities.last(item.name) in tasks, 'No task template for item');
-        targetnode = sourcetotarget( tasks[ Utilities.last(item.name) ], item );
+        newnode = sourcetotarget( tasks[ Utilities.last(item.name) ], item );
+        if (newnode) {
+          newnode.method = 'post';
+          newnode.action = '/dog/stream/tasks/' + item.id + '.json';
+        }
         break;
+        // listen
         case 'event':
         Utilities.assert(Utilities.last(item.name) in listens, 'No listen template for item');
-        sourcetotarget( listens[ Utilities.last(item.name) ], item );
+        newnode = sourcetotarget( listens[ Utilities.last(item.name) ], item );
+        if (newnode) {
+          newnode.method = 'post';
+          newnode.action = '/dog/stream/events/' + item.id + '.json';
+        }
         break;
+        // notify
         case 'message':
         Utilities.assert(Utilities.last(item.name) in notifys, 'No notify template for item');
         if (!(item.id in notifyseen)) {
-          sourcetotarget( notifys[ Utilities.last(item.name) ], item );
+          newnode = sourcetotarget( notifys[ Utilities.last(item.name) ], item );
           notifyseen[ item.id ] = true;
         }
         break;
