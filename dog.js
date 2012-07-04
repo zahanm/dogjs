@@ -111,6 +111,25 @@
     return true;
   };
 
+  function AssertionError(msg) {
+    this.__super__.constructor.call(this);
+    this.msg = msg;
+  }
+  AssertionError.prototype = new Error();
+  AssertionError.prototype.constructor = AssertionError;
+  AssertionError.prototype.__super__ = Error.prototype;
+
+  AssertionError.prototype.toString = function() {
+    return 'AssertionError: ' + this.msg;
+  };
+
+  exports.assert = function (exp, msg) {
+    if (!exp) {
+      throw new AssertionError(msg);
+    }
+  }
+
+
 }(window.Utilities = {}));
 
 
@@ -237,82 +256,67 @@
   var dogjs = new EventEmitter(),
     tasks, notifys, listens, oneachs, notifyseen = {};
 
-  function itemerror(msg, item) {
-    return console.error(msg, item);
-  }
-
   function sourcetotarget(sourcenode, item) {
     var targetnode, newnode, method;
-    if (sourcenode.attributes['target']) {
-      targetnode = document.querySelector( sourcenode.attributes['target'].value );
-      method = targetnode.attributes['method'] && targetnode.attributes['method'].value;
-      switch(method) {
-        case 'append':
+    Utilities.assert(sourcenode.attributes['target'], 'No target for source element');
+    targetnode = document.querySelector( sourcenode.attributes['target'].value );
+    method = targetnode.attributes['method'] && targetnode.attributes['method'].value;
+    switch(method) {
+      case 'append':
+      newnode = sourcenode.cloneNode(true);
+      if (item.input && !Utilities.isArray(item.input)) {
+        newnode.innerHTML = Mustache.render(sourcenode.innerHTML, item.input);
+      }
+      targetnode.appendChild(newnode);
+      break;
+      case 'replace':
+      default:
+      if ( !Utilities.trim(targetnode.innerHTML) ) {
         newnode = sourcenode.cloneNode(true);
         if (item.input && !Utilities.isArray(item.input)) {
           newnode.innerHTML = Mustache.render(sourcenode.innerHTML, item.input);
         }
         targetnode.appendChild(newnode);
-        break;
-        case 'replace':
-        default:
-        if ( !Utilities.trim(targetnode.innerHTML) ) {
-          newnode = sourcenode.cloneNode(true);
-          if (item.input && !Utilities.isArray(item.input)) {
-            newnode.innerHTML = Mustache.render(sourcenode.innerHTML, item.input);
-          }
-          targetnode.appendChild(newnode);
-        }
       }
-    } else {
-      return itemerror('No target for source element', item);
     }
+    return targetnode;
   }
 
   function onpoll(data) {
+    // DEBUG
     console.log(repeats);
     data['items'].forEach(function (item) {
-      if (item.name.length) {
-        switch(item.type) {
-          case 'task':
-          if (Utilities.last(item.name) in tasks) {
-            sourcetotarget( tasks[ Utilities.last(item.name) ], item );
-          } else {
-            return itemerror('No task template for item', item);
-          }
-          break;
-          case 'event':
-          if (Utilities.last(item.name) in listens) {
-            sourcetotarget( listens[ Utilities.last(item.name) ], item );
-          } else {
-            return itemerror('No listen template for item', item);
-          }
-          break;
-          case 'message':
-          if (Utilities.last(item.name) in notifys) {
-            if (!(item.id in notifyseen)) {
-              sourcetotarget( notifys[ Utilities.last(item.name) ], item );
-              notifyseen[ item.id ] = true;
-            }
-          } else {
-            return itemerror('No notify template for item', item);
-          }
-          break;
-          default:
-          itemerror('Invalid type specification for item', item);
+      var targetnode;
+      Utilities.assert(item.name.length, 'No name for item');
+      switch(item.type) {
+        case 'task':
+        Utilities.assert(Utilities.last(item.name) in tasks, 'No task template for item');
+        targetnode = sourcetotarget( tasks[ Utilities.last(item.name) ], item );
+        break;
+        case 'event':
+        Utilities.assert(Utilities.last(item.name) in listens, 'No listen template for item');
+        sourcetotarget( listens[ Utilities.last(item.name) ], item );
+        break;
+        case 'message':
+        Utilities.assert(Utilities.last(item.name) in notifys, 'No notify template for item');
+        if (!(item.id in notifyseen)) {
+          sourcetotarget( notifys[ Utilities.last(item.name) ], item );
+          notifyseen[ item.id ] = true;
         }
-      } else {
-        return itemerror('No name for item', item);
+        break;
+        default:
+        throw new Error('Invalid type specification for item');
       }
     });
     // repoll in 2 seconds
     setTimeout(repoll, 2000);
   }
 
-  var repeats = 0; // DEBUG
+  // DEBUG
+  var repeats = 0;
   function repoll() {
-    repeats++; // DEBUG
-    if (repeats > 20) { return; } // DEBUG
+    repeats++;
+    if (repeats > 20) { return; }
     var poll = new Request();
     dogjs.lastpolled = new Date();
     poll.on('success', onpoll);
@@ -322,11 +326,7 @@
   document.addEventListener('DOMContentLoaded', function() {
     var elems, dogblock;
     elems = document.getElementsByTagName('dog');
-    if (!elems.length) {
-      console.error('Missing <dog> .. </dog> templates section');
-      console.error('Aborting');
-      return;
-    }
+    Utilities.assert(elems.length, 'Missing <dog> .. </dog> templates section');
     dogblock = elems[0];
     dogblock.style.display = 'none';
 
