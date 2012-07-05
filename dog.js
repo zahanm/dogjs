@@ -74,6 +74,12 @@
 // #### fill
 // Currently called `replace`, only fill in if target node is empty
 //
+// ### Browser Requirements
+// HTML5 compatibilty
+//
+// - `element.addEventListener( .. )`
+// - `fd = new FormData(form)`
+//
 
 // ## Mustache.js (minified)
 //
@@ -127,8 +133,25 @@
     if (!exp) {
       throw new AssertionError(msg);
     }
-  }
+  };
 
+  // Send form contents over AJAX.
+  // Intercepts the `submit` event, and makes the submission manually.
+  exports.ajaxify = function (form) {
+    form.addEventListener('submit', function (ev) {
+      Utilities.assert(!ev.defaultPrevented, 'Form submit was canceled by another party');
+      if (form.checkValidity) {
+        Utilities.assert(form.checkValidity(), 'Form inputs invalid');
+      }
+      ev.preventDefault();
+      var req = new Request();
+      req.on('success', function (data) {
+        Utilities.assert(data['success'].match(/true/i));
+      });
+      req.post(form.action, new FormData(form));
+      form.reset();
+    });
+  };
 
 }(window.Utilities = {}));
 
@@ -181,9 +204,9 @@
 //
 // You can make a new request with
 //
-//     var request = new JaxLib.Request()
+//     var request = new Request()
 //     request.on('success', ..);
-//     request.get('http://jabber.wocky.org/dog/');
+//     request.get('http://jabber.wocky.org/dog/', { query: .. });
 //
 (function (exports) {
   'use strict';
@@ -235,9 +258,16 @@
   Request.prototype.__super__ = EventEmitter.prototype;
 
   Request.prototype.get = function (url, data) {
-    url += '?' + toqs(data);
+    url += data ? '?' + toqs(data) : '';
     this.xhp.open('GET', url, true);
     this.xhp.send();
+  };
+
+  Request.prototype.post = function (url, data, body) {
+    if (!body) { body = data; data = null; }
+    url += data ? '?' + toqs(data) : '';
+    this.xhp.open('POST', url, true);
+    this.xhp.send(body);
   };
 
   // make Request public
@@ -285,32 +315,31 @@
     // DEBUG
     console.log(repeats);
     data['items'].forEach(function (item) {
-      var newnode;
+      var sourcenode, newnode;
       Utilities.assert(item.name.length, 'No name for item');
       switch(item.type) {
         // ask
         case 'task':
-        Utilities.assert(Utilities.last(item.name) in tasks, 'No task template for item');
-        newnode = sourcetotarget( tasks[ Utilities.last(item.name) ], item );
-        if (newnode) {
-          newnode.method = 'post';
-          newnode.action = '/dog/stream/tasks/' + item.id + '.json';
-        }
-        break;
+        sourcenode = tasks[ Utilities.last(item.name) ];
+        Utilities.assert(sourcenode, 'No ask template for item');
         // listen
         case 'event':
-        Utilities.assert(Utilities.last(item.name) in listens, 'No listen template for item');
-        newnode = sourcetotarget( listens[ Utilities.last(item.name) ], item );
+        sourcenode = sourcenode || listens[ Utilities.last(item.name) ];
+        Utilities.assert(sourcenode, 'No listen template for item');
+        newnode = sourcetotarget( sourcenode, item );
         if (newnode) {
           newnode.method = 'post';
-          newnode.action = '/dog/stream/events/' + item.id + '.json';
+          newnode.action = '/dog/stream/' + item.type + 's/' + item.id + '.json';
+          // use AJAX for `form` submission
+          Utilities.ajaxify(newnode);
         }
         break;
         // notify
         case 'message':
-        Utilities.assert(Utilities.last(item.name) in notifys, 'No notify template for item');
+        sourcenode = notifys[ Utilities.last(item.name) ];
+        Utilities.assert(sourcenode, 'No notify template for item');
         if (!(item.id in notifyseen)) {
-          newnode = sourcetotarget( notifys[ Utilities.last(item.name) ], item );
+          newnode = sourcetotarget( sourcenode, item );
           notifyseen[ item.id ] = true;
         }
         break;
