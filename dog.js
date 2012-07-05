@@ -102,6 +102,7 @@
     return strlike.replace(/^\s+|\s+$/g, '');
   };
 
+  // Delegates to native `Array.isArray(..)` when present
   exports.isArray = function (arrlike) {
     if (Array.isArray) { return Array.isArray(arrlike); }
     return Object.prototype.toString.call(arrlike) === '[object Array]';
@@ -117,6 +118,11 @@
     return true;
   };
 
+  // Adding `.assert( .. )` allows for contract-style programming
+  // that can be extrememly powerful.
+  //
+  // `AssertionError` is thrown when an `.assert( .. )` fails, along
+  // with the failure message specified.
   function AssertionError(msg) {
     this.__super__.constructor.call(this);
     this.msg = msg;
