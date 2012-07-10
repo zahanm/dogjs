@@ -92,18 +92,24 @@
 //
 (function (exports) {
 
-  exports.last = function (arrlike) {
-    return arrlike[arrlike.length - 1];
-  };
+  // ### Strings
 
   exports.trim = function (strlike) {
     return strlike.replace(/^\s+|\s+$/g, '');
   };
 
+  // ### Arrays
+
   // Delegates to native `Array.isArray(..)` when present
   exports.isArray = function (arrlike) {
     if (Array.isArray) { return Array.isArray(arrlike); }
     return Object.prototype.toString.call(arrlike) === '[object Array]';
+  };
+
+  // Collections
+
+  exports.last = function (arrlike) {
+    return arrlike[arrlike.length - 1];
   };
 
   exports.isEmpty = function (objlike) {
@@ -116,6 +122,8 @@
     return true;
   };
 
+  // ### Contract-style programming
+  //
   // Adding `.assert( .. )` allows for contract-style programming
   // that can be extrememly powerful.
   //
@@ -290,14 +298,27 @@
   var dogjs = new EventEmitter(),
     tasks, notifys, listens, oneachs, notifyseen = {};
 
+  function extractview(item) {
+    var bag = {};
+    if (item.properties && Utilities.isArray(item.properties)) {
+      item.properties
+      .filter(function (el) { return el.direction === 'output' })
+      .forEach(function (prop) {
+        bag[prop.identifier] = prop.value;
+      });
+    }
+    return bag;
+  }
+
   function sourcetotarget(sourcenode, item) {
-    var targetnode, newnode, method;
+    var targetnode, newnode, method, view;
     Utilities.assert(sourcenode.attributes['target'], 'No target for source element');
     targetnode = document.querySelector( sourcenode.attributes['target'].value );
     method = targetnode.attributes['method'] && targetnode.attributes['method'].value;
     newnode = sourcenode.cloneNode(true);
-    if (item.input && !Utilities.isArray(item.input)) {
-      newnode.innerHTML = Mustache.render(sourcenode.innerHTML, item.input);
+    view = extractview(item);
+    if (!Utilities.isEmpty(view)) {
+      newnode.innerHTML = Mustache.render(sourcenode.innerHTML, view);
     } else {
       newnode.innerHTML = sourcenode.innerHTML;
     }
