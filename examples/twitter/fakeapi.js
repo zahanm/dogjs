@@ -69,14 +69,15 @@ function duplicate(obj) {
 
 // poll stream
 
-server.get('/dog/stream/poll.json', function(req, res) {
+server.get('/dog/stream.json', function(req, res) {
   res.send(json({
     items: poll
   }));
 });
 
 var numposts = 1;
-server.post('/dog/stream/events/:oid.json', function (req, res) {
+server.post('/dog/stream.json', function (req, res) {
+  console.log('listen id:', req.query['id']);
   var tweet = duplicate(tweet1);
   tweet.properties = [];
   tweet.properties.push({

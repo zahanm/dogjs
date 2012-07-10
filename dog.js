@@ -158,7 +158,8 @@
       ev.preventDefault();
       var req = new Request();
       req.on('success', function (data) {
-        Utilities.assert(data['success']);
+        console.log(data);
+        // TODO Utilities.assert(data['success']);
       });
       req.post(form.action, new FormData(form));
       form.reset();
@@ -270,14 +271,14 @@
   Request.prototype.__super__ = EventEmitter.prototype;
 
   Request.prototype.get = function (url, data) {
-    url += data ? '?' + toqs(data) : '';
+    url += Utilities.isEmpty(data) ? '' : '?' + toqs(data);
     this.xhp.open('GET', url, true);
     this.xhp.send();
   };
 
   Request.prototype.post = function (url, data, body) {
     if (!body) { body = data; data = null; }
-    url += data ? '?' + toqs(data) : '';
+    url += Utilities.isEmpty(data) ? '' : '?' + toqs(data);
     this.xhp.open('POST', url, true);
     this.xhp.send(body);
   };
@@ -311,7 +312,7 @@
     if (this.count < this.totalcount) {
       var req, options = {};
       req = new Request();
-      if (this.lastpolled) { options['after'] = this.lastpolled.toISOString() }
+      // XXX if (this.lastpolled) { options['after'] = this.lastpolled.toISOString() }
       req.on('success', function (data) {
         this.emit('poll', data);
       }, this);
@@ -384,23 +385,28 @@
       switch(item.type) {
         // ask
         case 'task':
-        sourcenode = tasks[ Utilities.last(item.name) ];
+        sourcenode = tasks[ item.name ];
         Utilities.assert(sourcenode, 'No ask template for item');
         // listen
-        case 'event':
-        sourcenode = sourcenode || listens[ Utilities.last(item.name) ];
+        case 'Dog::RoutedEvent': // XXX 'event':
+        sourcenode = sourcenode || listens[ item.name ];
         Utilities.assert(sourcenode, 'No listen template for item');
         newnode = sourcetotarget( sourcenode, item );
         if (newnode) {
           newnode.method = 'post';
-          newnode.action = '/dog/stream/' + item.type + 's/' + item.id + '.json';
+          newnode.action = '/dog/stream.json?id=' + item.id;
           // use AJAX for `form` submission
           Utilities.ajaxify(newnode);
+          if (item.name in notifys) {
+            var subscriber = new Poller('/dog/stream.json?id=' + item.id, 2000, 20 );
+            subscriber.on('poll', onpoll);
+            subscriber.poll();
+          }
         }
         break;
         // notify
         case 'message':
-        sourcenode = notifys[ Utilities.last(item.name) ];
+        sourcenode = notifys[ item.name ];
         Utilities.assert(sourcenode, 'No notify template for item');
         if (!(item.id in notifyseen)) {
           newnode = sourcetotarget( sourcenode, item );
@@ -442,7 +448,7 @@
     });
 
     // repoll in 2 seconds
-    subscriber = new Poller('/dog/stream/poll.json', 2000, 20);
+    subscriber = new Poller('/dog/stream.json', 2000, 20);
     subscriber.on('poll', onpoll);
     subscriber.poll();
 
