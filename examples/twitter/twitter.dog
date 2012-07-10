@@ -2,7 +2,7 @@
 #           Data Structures              #
 #========================================#
 
-tweet = event {
+DEFINE event tweet {
   input username
   input status
 }
@@ -11,10 +11,10 @@ tweet = event {
 #                 Main                   #
 #========================================#
 
-LISTEN TO PUBLIC FOR tweets
+LISTEN TO public VIA http FOR tweets
 
 ON EACH tweet DO
-    NOTIFY PUBLIC OF tweet
+    NOTIFY public VIA stream OF tweet
 END
 
 #========================================#
