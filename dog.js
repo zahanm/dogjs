@@ -158,7 +158,7 @@
       ev.preventDefault();
       var req = new Request();
       req.on('success', function (data) {
-        Utilities.assert(data['success'].match(/true/i));
+        Utilities.assert(data['success']);
       });
       req.post(form.action, new FormData(form));
       form.reset();
@@ -287,6 +287,47 @@
 
 }(window));
 
+// Subscribers
+(function (exports) {
+
+  var Poller;
+
+  Poller = function (endpoint, interval, totalcount) {
+    this.__super__.constructor.call(this);
+    this.endpoint = endpoint;
+    this.interval = interval;
+    this.totalcount = totalcount || 1000;
+    this.lastpolled = null;
+    this.count = 0;
+  };
+
+  Poller.prototype = new EventEmitter();
+  Poller.prototype.constructor = Poller;
+  Poller.prototype.__super__ = EventEmitter.prototype;
+
+  Poller.prototype.poll = function () {
+    // DEBUG
+    console.log(this.count);
+    if (this.count < this.totalcount) {
+      var req, options = {};
+      req = new Request();
+      if (this.lastpolled) { options['after'] = this.lastpolled.toISOString() }
+      req.on('success', function (data) {
+        this.emit('poll', data);
+      }, this);
+      // DEBUG
+      console.log('polling..');
+      req.get(this.endpoint, options);
+      this.lastpolled = new Date();
+      this.count++;
+      setTimeout(this.poll.bind(this), this.interval);
+    }
+  };
+
+  exports.Poller = Poller;
+
+}(window));
+
 // ## dogjs
 //
 // Connects to dog servers
@@ -337,8 +378,6 @@
   }
 
   function onpoll(data) {
-    // DEBUG
-    console.log(repeats);
     data['items'].forEach(function (item) {
       var sourcenode, newnode;
       Utilities.assert(item.name.length, 'No name for item');
@@ -372,23 +411,10 @@
         throw new Error('Invalid type specification for item');
       }
     });
-    // repoll in 2 seconds
-    setTimeout(repoll, 2000);
-  }
-
-  // DEBUG
-  var repeats = 0;
-  function repoll() {
-    repeats++;
-    if (repeats > 20) { return; }
-    var poll = new Request();
-    dogjs.lastpolled = new Date();
-    poll.on('success', onpoll);
-    poll.get('/dog/stream/poll.json', { 'after': dogjs.lastpolled.toISOString() });
   }
 
   document.addEventListener('DOMContentLoaded', function() {
-    var elems, dogblock;
+    var elems, dogblock, subscriber;
     elems = document.getElementsByTagName('dog');
     Utilities.assert(elems.length, 'Missing <dog> .. </dog> templates section');
     dogblock = elems[0];
@@ -415,7 +441,11 @@
       }
     });
 
-    repoll();
+    // repoll in 2 seconds
+    subscriber = new Poller('/dog/stream/poll.json', 2000, 20);
+    subscriber.on('poll', onpoll);
+    subscriber.poll();
+
   }, false);
 
   exports.dogjs = dogjs;
