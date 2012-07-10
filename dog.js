@@ -1,5 +1,3 @@
-// Prereqs: To be used in *modern* browsers
-//
 // ### HTML Structure
 // Each Dog structure has a matching HTML implementation
 //
