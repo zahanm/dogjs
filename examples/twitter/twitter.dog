@@ -21,7 +21,7 @@ LISTEN TO public VIA http FOR tweets
 ON EACH tweet DO
   PRINT tweet.username + ': ' + tweet.status
   NOTIFY public VIA stream OF tweetmsg USING status: tweet.status, username: tweet.username
-  # NOTIFY public VIA stream OF tweet
+
 END
 
 #========================================#

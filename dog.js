@@ -338,7 +338,7 @@
 
   // `dogjs` is an augmented EventEmitter instance
   var dogjs = new EventEmitter(),
-    tasks, notifys, listens, oneachs, notifyseen = {};
+    tasks, notifys, listens, oneachs, notifyseen = {}, handlerseen = {};
 
   function extractview(item) {
     var bag = {};
@@ -397,15 +397,15 @@
           newnode.action = '/dog/stream.json?id=' + item.id;
           // use AJAX for `form` submission
           Utilities.ajaxify(newnode);
-          if (item.name in notifys) {
-            var subscriber = new Poller('/dog/stream.json?id=' + item.id, 2000, 20 );
-            subscriber.on('poll', onpoll);
+          if ((item.name + 'msg') in notifys) { // TODO XXX HACK
+            var subscriber = new Poller('/dog/stream.json?id=' + item.id, 1000, 200);
+            subscriber.on('poll', onpolllist);
             subscriber.poll();
           }
         }
         break;
         // notify
-        case 'message':
+        case 'Dog::RoutedMessage': // 'message':
         sourcenode = notifys[ item.name ];
         Utilities.assert(sourcenode, 'No notify template for item');
         if (!(item.id in notifyseen)) {
@@ -415,6 +415,17 @@
         break;
         default:
         throw new Error('Invalid type specification for item');
+      }
+    });
+  }
+
+  function onpolllist(data) {
+    data['items'].forEach(function (item) {
+      if (!(item.id in handlerseen)) {
+        var req = new Request();
+        req.on('success', onpoll);
+        req.get('/dog/stream.json', { id: item.id });
+        handlerseen[ item.id ] = true;
       }
     });
   }
@@ -448,7 +459,7 @@
     });
 
     // repoll in 2 seconds
-    subscriber = new Poller('/dog/stream.json', 2000, 20);
+    subscriber = new Poller('/dog/stream.json', 1000, 200);
     subscriber.on('poll', onpoll);
     subscriber.poll();
 
