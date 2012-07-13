@@ -7,7 +7,7 @@
 
   <dog>
 
-    <form listen="tweet" holder="#post">
+    <form listen="tweets" holder="#post">
       <p><label>Username @<input type="text" name="username" placeholder="zz" required></label></p>
       <p>
         <textarea name="status" placeholder="Compose new Tweet..." style="width: 205px; height: 40px"></textarea>
@@ -15,7 +15,7 @@
       <input type="submit" value="post &rarr;">
     </form>
 
-    <section notify="tweetmsg" holder="#stream">
+    <section notify="tweet" holder="#stream">
       <p>@{{ username }} says:</p>
       <p>{{ status }}</p>
     </section>

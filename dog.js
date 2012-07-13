@@ -383,12 +383,10 @@
       var sourcenode, newnode;
       Utilities.assert(item.name.length, 'No name for item');
       switch(item.type) {
-        // ask
-        case 'task':
+        case 'ask': // 'task':
         sourcenode = tasks[ item.name ];
         Utilities.assert(sourcenode, 'No ask template for item');
-        // listen
-        case 'Dog::RoutedEvent': // XXX 'event':
+        case 'listen': // 'Dog::RoutedEvent':
         sourcenode = sourcenode || listens[ item.name ];
         Utilities.assert(sourcenode, 'No listen template for item');
         newnode = sourcetotarget( sourcenode, item );
@@ -398,14 +396,13 @@
           // use AJAX for `form` submission
           Utilities.ajaxify(newnode);
           if ((item.name + 'msg') in notifys) { // TODO XXX HACK
-            var subscriber = new Poller('/dog/stream.json?id=' + item.id, 1000, 200);
+            var subscriber = new Poller('/dog/stream/' + item.id, 1000, 200);
             subscriber.on('poll', onpolllist);
             subscriber.poll();
           }
         }
         break;
-        // notify
-        case 'Dog::RoutedMessage': // 'message':
+        case 'notify': // 'Dog::RoutedMessage':
         sourcenode = notifys[ item.name ];
         Utilities.assert(sourcenode, 'No notify template for item');
         if (!(item.id in notifyseen)) {
@@ -424,7 +421,7 @@
       if (!(item.id in handlerseen)) {
         var req = new Request();
         req.on('success', onpoll);
-        req.get('/dog/stream.json', { id: item.id });
+        req.get('/dog/stream/' + item.id);
         handlerseen[ item.id ] = true;
       }
     });
@@ -459,7 +456,7 @@
     });
 
     // repoll in 2 seconds
-    subscriber = new Poller('/dog/stream.json', 1000, 200);
+    subscriber = new Poller('/dog/stream', 1000, 200);
     subscriber.on('poll', onpoll);
     subscriber.poll();
 
