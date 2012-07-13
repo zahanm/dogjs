@@ -9,28 +9,28 @@ file.</p>
 
 <h4>notification</h4>
 
-<pre><code>&lt;section notify="notification_name" target="selector"&gt;
+<pre><code>&lt;section notify="notification_name" holder="selector"&gt;
   {{ title }} .. {{ body }}
 &lt;/section&gt;
 </code></pre>
 
 <h4>ask</h4>
 
-<pre><code>&lt;form ask="task_name" target="selector"&gt;
+<pre><code>&lt;form ask="task_name" holder="selector"&gt;
   &lt;input type="text" name="input_name"&gt;
 &lt;/form&gt;
 </code></pre>
 
 <h4>listen</h4>
 
-<pre><code>&lt;form listen="listen_name" target="selector"&gt;
+<pre><code>&lt;form listen="listen_name" holder="selector"&gt;
   &lt;input type="text" name="input_name"&gt;
 &lt;/form&gt;
 </code></pre>
 
 <h4>track</h4>
 
-<pre><code>&lt;section track="track_name" target="selector"&gt;
+<pre><code>&lt;section track="track_name" holder="selector"&gt;
   .. {{ variable_name }} ..
 &lt;/section&gt;
 </code></pre>
@@ -47,11 +47,11 @@ with the contents of a message, for instance</p>
 
 <h3>Target</h3>
 
-<p>The <code>target</code> attribute in the source node is used to specify what the
-target node should be.
+<p>The <code>holder</code> attribute in the source node is used to specify what the
+holder node should be.
 Usually, takes the form of a CSS selector, that should specify single DOM node.</p>
 
-<pre><code>&lt;form listen=".." target="#tweetbox"&gt;
+<pre><code>&lt;form listen=".." holder="#tweetbox"&gt;
   ..
 &lt;/form&gt;
 </code></pre>
@@ -61,16 +61,16 @@ created for this element.</p>
 
 <h3>Method</h3>
 
-<p>The <code>method</code> attribute in the target node is used to specify
+<p>The <code>method</code> attribute in the holder node is used to specify
 how the node is updated</p>
 
 <h4>append</h4>
 
-<p>Append a new child of the target node</p>
+<p>Append a new child of the holder node</p>
 
 <h4>prepend</h4>
 
-<p>Add a new child at the beginning of the target node</p>
+<p>Add a new child at the beginning of the holder node</p>
 
 <h4>enqueue</h4>
 
@@ -78,7 +78,7 @@ how the node is updated</p>
 
 <h4>overwrite</h4>
 
-<p>Always overwrite target node</p>
+<p>Always overwrite holder node</p>
 
 <h4>update</h4>
 
@@ -86,7 +86,7 @@ how the node is updated</p>
 
 <h4>fill</h4>
 
-<p>Currently called <code>replace</code>, only fill in if target node is empty</p>
+<p>Currently called <code>replace</code>, only fill in if holder node is empty</p>
 
 <h3>Browser Requirements</h3>
 
@@ -314,8 +314,8 @@ request.get('http://jabber.wocky.org/dog/', { query: .. });
 
   <span class="kd">function</span> <span class="nx">sourcetotarget</span><span class="p">(</span><span class="nx">sourcenode</span><span class="p">,</span> <span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">targetnode</span><span class="p">,</span> <span class="nx">newnode</span><span class="p">,</span> <span class="nx">method</span><span class="p">,</span> <span class="nx">view</span><span class="p">;</span>
-    <span class="nx">Utilities</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="nx">sourcenode</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">],</span> <span class="s1">&#39;No target for source element&#39;</span><span class="p">);</span>
-    <span class="nx">targetnode</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span> <span class="nx">sourcenode</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">].</span><span class="nx">value</span> <span class="p">);</span>
+    <span class="nx">Utilities</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="nx">sourcenode</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;holder&#39;</span><span class="p">],</span> <span class="s1">&#39;No holder for source element&#39;</span><span class="p">);</span>
+    <span class="nx">targetnode</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span> <span class="nx">sourcenode</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;holder&#39;</span><span class="p">].</span><span class="nx">value</span> <span class="p">);</span>
     <span class="nx">method</span> <span class="o">=</span> <span class="nx">targetnode</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">targetnode</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">].</span><span class="nx">value</span><span class="p">;</span>
     <span class="nx">newnode</span> <span class="o">=</span> <span class="nx">sourcenode</span><span class="p">.</span><span class="nx">cloneNode</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
     <span class="nx">view</span> <span class="o">=</span> <span class="nx">extractview</span><span class="p">(</span><span class="nx">item</span><span class="p">);</span>

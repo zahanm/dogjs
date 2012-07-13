@@ -8,25 +8,25 @@
 //
 // #### notification
 //
-//     <section notify="notification_name" target="selector">
+//     <section notify="notification_name" holder="selector">
 //       {{ title }} .. {{ body }}
 //     </section>
 //
 // #### ask
 //
-//     <form ask="task_name" target="selector">
+//     <form ask="task_name" holder="selector">
 //       <input type="text" name="input_name">
 //     </form>
 //
 // #### listen
 //
-//     <form listen="listen_name" target="selector">
+//     <form listen="listen_name" holder="selector">
 //       <input type="text" name="input_name">
 //     </form>
 //
 // #### track
 //
-//     <section track="track_name" target="selector">
+//     <section track="track_name" holder="selector">
 //       .. {{ variable_name }} ..
 //     </section>
 //
@@ -39,11 +39,11 @@
 //     });
 //
 // ### Target
-// The `target` attribute in the source node is used to specify what the
-// target node should be.
+// The `holder` attribute in the source node is used to specify what the
+// holder node should be.
 // Usually, takes the form of a CSS selector, that should specify single DOM node.
 //
-//     <form listen=".." target="#tweetbox">
+//     <form listen=".." holder="#tweetbox">
 //       ..
 //     </form>
 //
@@ -51,26 +51,26 @@
 // created for this element.
 //
 // ### Method
-// The `method` attribute in the target node is used to specify
+// The `method` attribute in the holder node is used to specify
 // how the node is updated
 //
 // #### append
-// Append a new child of the target node
+// Append a new child of the holder node
 //
 // #### prepend
-// Add a new child at the beginning of the target node
+// Add a new child at the beginning of the holder node
 //
 // #### enqueue
 // Maintain queue for node, when current node clears
 //
 // #### overwrite
-// Always overwrite target node
+// Always overwrite holder node
 //
 // #### update
 // Same as overwrite, except only triggered when it's the same object
 //
 // #### fill
-// Currently called `replace`, only fill in if target node is empty
+// Currently called `replace`, only fill in if holder node is empty
 //
 // ### Browser Requirements
 // HTML5 compatibilty
@@ -354,8 +354,8 @@
 
   function sourcetotarget(sourcenode, item) {
     var targetnode, newnode, method, view;
-    Utilities.assert(sourcenode.attributes['target'], 'No target for source element');
-    targetnode = document.querySelector( sourcenode.attributes['target'].value );
+    Utilities.assert(sourcenode.attributes['holder'], 'No holder for source element');
+    targetnode = document.querySelector( sourcenode.attributes['holder'].value );
     method = targetnode.attributes['method'] && targetnode.attributes['method'].value;
     newnode = sourcenode.cloneNode(true);
     view = extractview(item);
