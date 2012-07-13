@@ -2,12 +2,7 @@
 #           Data Structures              #
 #========================================#
 
-DEFINE event tweet {
-  input username
-  input status
-}
-
-DEFINE message tweetmsg {
+DEFINE tweet {
   username
   status
 }
@@ -19,9 +14,8 @@ DEFINE message tweetmsg {
 LISTEN TO public VIA http FOR tweets
 
 ON EACH tweet DO
-  PRINT tweet.username + ': ' + tweet.status
-  NOTIFY public VIA stream OF tweetmsg USING status: tweet.status, username: tweet.username
-
+  PRINT 'tweet: ' + tweet.username + ' => ' + tweet.status
+  NOTIFY public VIA stream OF tweet
 END
 
 #========================================#
