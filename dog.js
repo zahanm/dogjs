@@ -291,7 +291,9 @@
 // Subscribers
 (function (exports) {
 
-  var Poller;
+  var Poller, pollinterval, pollcount;
+  pollinterval = 1000;
+  pollcount = 2; // FIXME More total polls needed, naturally
 
   Poller = function (endpoint, interval, totalcount) {
     this.__super__.constructor.call(this);
@@ -396,7 +398,7 @@
           // use AJAX for `form` submission
           Utilities.ajaxify(newnode);
           if ((item.name + 'msg') in notifys) { // TODO XXX HACK
-            var subscriber = new Poller('/dog/stream/' + item.id, 1000, 200);
+            var subscriber = new Poller('/dog/stream/' + item.id, pollinterval, pollcount);
             subscriber.on('poll', onpolllist);
             subscriber.poll();
           }
@@ -455,8 +457,8 @@
       }
     });
 
-    // repoll in 2 seconds
-    subscriber = new Poller('/dog/stream', 1000, 200);
+    // repoll functionality abstracted out
+    subscriber = new Poller('/dog/stream', pollinterval, pollcount);
     subscriber.on('poll', onpoll);
     subscriber.poll();
 

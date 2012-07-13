@@ -95,7 +95,8 @@ function toArray(obj) {
 // }
 
 var rootstream = [ listen ];
-var listenstream = {};
+var listenstream = []
+var tweettracks = {};
 
 server.get('/dog/stream', function(req, res) {
   res.send(json({
@@ -109,11 +110,11 @@ server.get('/dog/stream/:oid', function (req, res) {
   if (req.params['oid'] == listen.id) {
     res.send(json({
       self: listen,
-      items: toArray(listenstream)
+      items: listenstream
     }));
-  } else if (req.params['oid'] in listenstream) {
+  } else if (req.params['oid'] in tweettracks) {
     res.send(json({
-      self: listenstream[ req.params['oid'] ],
+      self: tweettracks[ req.params['oid'] ],
       items: null
     }));
   } else {
@@ -140,7 +141,16 @@ server.post('/dog/stream/:oid', function (req, res) {
   });
   tweet.id += String(numposts);
   numposts++;
-  listenstream[ tweet.id ] = tweet;
+  var track = {
+    self: {
+      id: 'track:' + tweet.id,
+      type: 'track',
+      name: []
+    },
+    items: [ tweet ]
+  };
+  tweettracks[ track.id ] = track;
+  listenstream.push(track['self']);
   res.send(json({
     success: true
   }));
