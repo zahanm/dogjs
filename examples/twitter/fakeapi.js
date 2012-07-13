@@ -15,41 +15,44 @@ server.configure(function() {
 
 server.get('/', function(req, res) {
   res.contentType('text/html');
-  res.sendfile( path.resolve( __dirname, 'index.html' ) );
+  res.sendfile( path.resolve( __dirname, 'views/index.html' ) );
 });
 
 server.get('/dog.js', function(req, res) {
   res.contentType('text/javascript');
-  res.sendfile( path.resolve( __dirname, '../../dog.js' ) );
+  res.sendfile( path.resolve( __dirname, 'views/dog.js' ) );
 });
 
 // Dog API section
 
-var poll, event1, tweet1;
+var listen, template_tweet;
 
-event1 = {
-  type: "event",
+listen = {
+  type: "listen",
   timestamp: "2012-06-23T15:30:22.591Z",
   id: "VoojLPmRpeyg",
-  track_id: "TyFmJoRMj1Fj",
   name: [ "tweets" ],
-  input: [ 'username', 'status' ],
-  output: [ ]
+  properties: [
+    {
+      identifier: 'username',
+      direction: 'input',
+      required: true
+    },
+    {
+      identifier: 'status',
+      direction: 'input',
+      required: true
+    }
+  ]
 };
 
-tweet1 = {
-  type: "message",
+template_tweet = {
+  type: "notify",
   timestamp: "2012-06-25T11:10:10.591Z",
   id: "bmYiaGjNYIRJ",
-  track_id: "bmSADJKLNYIRJ",
-  name: [ "@each:tweets", "tweet" ],
-  input: {
-    username: "",
-    status: ""
-  }
+  name: [ "oneach:tweets", "tweet" ],
+  properties: []
 };
-
-poll = [ event1 ];
 
 function duplicate(obj) {
   var dup = {}, key;
@@ -67,18 +70,63 @@ function duplicate(obj) {
   return dup;
 }
 
-// poll stream
+function toArray(obj) {
+  var key, arr = [];
+  for (key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      arr.push(obj[key]);
+    }
+  }
+  return arr;
+}
 
-server.get('/dog/stream.json', function(req, res) {
+// poll stream
+//
+// each tweet: {
+//   id: 'sadasdasdfa'
+//   properties: [
+//   {
+//     identifier: 'username',
+//     value: 'zahanm',
+//     direction: 'input'
+//   },
+//   ...
+//   ]
+// }
+
+var rootstream = [ listen ];
+var listenstream = {};
+
+server.get('/dog/stream', function(req, res) {
   res.send(json({
-    items: poll
+    self: null,
+    items: rootstream
   }));
 });
 
+server.get('/dog/stream/:oid', function (req, res) {
+  // console.log('GET listen id:', req.params['oid']);
+  if (req.params['oid'] == listen.id) {
+    res.send(json({
+      self: listen,
+      items: toArray(listenstream)
+    }));
+  } else if (req.params['oid'] in listenstream) {
+    res.send(json({
+      self: listenstream[ req.params['oid'] ],
+      items: null
+    }));
+  } else {
+    res.send(json({
+      success: false
+    }));
+  }
+});
+
 var numposts = 1;
-server.post('/dog/stream.json', function (req, res) {
-  console.log('listen id:', req.query['id']);
-  var tweet = duplicate(tweet1);
+server.post('/dog/stream/:oid', function (req, res) {
+  console.log('POST listen id:', req.params['oid']);
+  var tweet = duplicate(template_tweet);
   tweet.properties = [];
   tweet.properties.push({
     identifier: 'username',
@@ -92,7 +140,7 @@ server.post('/dog/stream.json', function (req, res) {
   });
   tweet.id += String(numposts);
   numposts++;
-  poll.push(tweet);
+  listenstream[ tweet.id ] = tweet;
   res.send(json({
     success: true
   }));
