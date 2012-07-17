@@ -431,6 +431,7 @@
         case 'listen':
         sourcenode = sourcenode || listens[ Utilities.last(item.name) ];
         Utilities.assert(sourcenode, 'No listen template for item');
+        sourcenode.setAttribute('data-id', item.id);
         newnode = sourcetotarget( sourcenode, item );
         if (newnode) {
           newnode.method = 'post';
@@ -443,6 +444,7 @@
         case 'notify':
         sourcenode = notifys[ Utilities.last(item.name) ];
         Utilities.assert(sourcenode, 'No notify template for item');
+        sourcenode.setAttribute('data-id', item.id);
         newnode = sourcetotarget( sourcenode, item );
         break;
         // case 'Dog::Track'
@@ -454,6 +456,7 @@
         case 'oneach':
         sourcenode = oneachs[ Utilities.last(item.name) ];
         Utilities.assert(sourcenode, 'No oneach template for item');
+        sourcenode.setAttribute('data-id', item.id);
         if (sourcenode.attributes['subscribe'] && sourcenode.attributes['subscribe'].value.match(/true/i)) {
           var subscriber = new Poller('/dog/stream/' + item.id, pollinterval, pollcount);
           subscriber.on('poll', onpoll);
