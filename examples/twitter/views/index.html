@@ -15,9 +15,11 @@
       <input type="submit" value="post &rarr;">
     </form>
 
-    <section notify="tweet" holder="#stream">
-      <p>@{{ username }} says:</p>
-      <p>{{ status }}</p>
+    <section oneach="tweet" subscribe="true">
+      <section notify="tweet" holder="#stream">
+        <p>@{{ username }} says:</p>
+        <p>{{ status }}</p>
+      </section>
     </section>
 
   </dog>

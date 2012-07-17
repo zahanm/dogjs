@@ -6,7 +6,7 @@
 // Convention places this section at the top of your HTML
 // file.
 //
-// #### notification
+// #### notify
 //
 //     <section notify="notification_name" holder="selector">
 //       {{ title }} .. {{ body }}
@@ -24,11 +24,19 @@
 //       <input type="text" name="input_name">
 //     </form>
 //
-// #### track
+// #### oneach
 //
-//     <section track="track_name" holder="selector">
-//       .. {{ variable_name }} ..
+//     <section oneach="oneach_name" subscribe="true">
+//       .. notify, ask and listen tags ..
 //     </section>
+//
+// ### Tracks
+// Tracks are instances of an event submitted to Dog.
+// For example, the submission to an `ASK` or a `LISTEN` is instantiated as a `track` on the
+// stream.
+//
+// You access `track`s by subscribing to the stream of the `ON EACH` that it corresponds to.
+// That is the function of the `subscribe` attribute in the `oneach` tag.
 //
 // ### Events
 // You register listeners for events that can execute arbitrary javascript
@@ -108,7 +116,7 @@
   }
   exports.isArray = isArray;
 
-  // Collections
+  // ### Collections
 
   exports.last = function (arrlike) {
     if ( arrlike.length ) {
@@ -126,6 +134,17 @@
       }
     }
     return true;
+  };
+
+  // iterator format => `function (value, key, i) { .. }`
+  exports.forEach = function (objlike, iterator) {
+    var key, i = 0;
+    for (key in objlike) {
+      if (objlike.hasOwnProperty(key)) {
+        iterator(objlike[key], key, i);
+        i++;
+      }
+    }
   };
 
   // ### Contract-style programming
@@ -345,7 +364,7 @@
 
   // `dogjs` is an augmented EventEmitter instance
   var dogjs = new EventEmitter(),
-    tasks, notifys, listens, oneachs, notifyseen = {}, handlerseen = {};
+    asks, notifys, listens, oneachs, streamobjectseen = {};
 
   var pollinterval, pollcount;
   pollinterval = 1000;
@@ -396,7 +415,7 @@
       switch(item.type) {
         // case 'Dog::RoutedTask':
         case 'ask':
-        sourcenode = tasks[ Utilities.last(item.name) ];
+        sourcenode = asks[ Utilities.last(item.name) ];
         Utilities.assert(sourcenode, 'No ask template for item');
         // case 'Dog::RoutedEvent':
         case 'listen':
@@ -408,36 +427,37 @@
           newnode.action = '/dog/stream/' + item.id;
           // use AJAX for `form` submission
           Utilities.ajaxify(newnode);
-          // FIXME can't just check without the 's'
-          if (Utilities.last(item.name).slice(0,-1) in notifys) {
-            var subscriber = new Poller('/dog/stream/' + item.id, pollinterval, pollcount);
-            subscriber.on('poll', onpolllist);
-            subscriber.poll();
-          }
         }
         break;
         // case 'Dog::RoutedMessage':
         case 'notify':
         sourcenode = notifys[ Utilities.last(item.name) ];
         Utilities.assert(sourcenode, 'No notify template for item');
-        if (!(item.id in notifyseen)) {
+        if (!(item.id in streamobjectseen)) {
           newnode = sourcetotarget( sourcenode, item );
-          notifyseen[ item.id ] = true;
+          streamobjectseen[ item.id ] = true;
+        }
+        break;
+        // case 'Dog::Track'
+        case 'track':
+        if (!(item.id in streamobjectseen)) {
+          var req = new Request();
+          req.on('success', onpoll);
+          req.get('/dog/stream/' + item.id);
+          streamobjectseen[ item.id ] = true;
+        }
+        break;
+        case 'oneach':
+        sourcenode = oneachs[ Utilities.last(item.name) ];
+        Utilities.assert(sourcenode, 'No oneach template for item');
+        if (sourcenode.attributes['subscribe'] && sourcenode.attributes['subscribe'].value.match(/true/i)) {
+          var subscriber = new Poller('/dog/stream/' + item.id, pollinterval, pollcount);
+          subscriber.on('poll', onpoll);
+          subscriber.poll();
         }
         break;
         default:
         throw new Error('Invalid type specification for item');
-      }
-    });
-  }
-
-  function onpolllist(data) {
-    data['items'].forEach(function (item) {
-      if (!(item.id in handlerseen)) {
-        var req = new Request();
-        req.on('success', onpoll);
-        req.get('/dog/stream/' + item.id);
-        handlerseen[ item.id ] = true;
       }
     });
   }
@@ -449,14 +469,16 @@
     dogblock = elems[0];
     dogblock.style.display = 'none';
 
-    tasks = {},
+    asks = {},
     oneachs = {},
     listens = {},
     notifys = {};
+
+    // **Scan for Dog tags in the templates section**
     elems = dogblock.getElementsByTagName('form');
     Array.prototype.forEach.call(elems, function (elem) {
-      if (elem.attributes['task']) {
-        tasks[ elem.attributes['task'].value ] = elem;
+      if (elem.attributes['ask']) {
+        asks[ elem.attributes['ask'].value ] = elem;
       } else if (elem.attributes['listen']) {
         listens[ elem.attributes['listen'].value ] = elem;
       }
@@ -470,7 +492,9 @@
       }
     });
 
-    // repoll functionality abstracted out
+    // **Setup polling**
+
+    // root stream
     subscriber = new Poller('/dog/stream', pollinterval, pollcount);
     subscriber.on('poll', onpoll);
     subscriber.poll();
