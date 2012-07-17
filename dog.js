@@ -317,9 +317,14 @@
 (function (exports) {
   'use strict';
 
-  var Poller, pollinterval, pollcount;
+  var Poller, pollendpoints = {};
 
   Poller = function (endpoint, interval, totalcount) {
+    if (endpoint in pollendpoints) {
+      throw new Error("Already subscribed to " + endpoint + " stream.");
+    } else {
+      pollendpoints[ endpoint ] = true;
+    }
     this.__super__.constructor.call(this);
     this.endpoint = endpoint;
     this.interval = interval;
@@ -333,16 +338,16 @@
   Poller.prototype.__super__ = EventEmitter.prototype;
 
   Poller.prototype.poll = function () {
-    // DEBUG
+    // TODO DEBUG rm
     console.log(this.count);
     if (this.count < this.totalcount) {
       var req, options = {};
       req = new Request();
-      // XXX if (this.lastpolled) { options['after'] = this.lastpolled.toISOString() }
+      // FIXME if (this.lastpolled) { options['after'] = this.lastpolled.toISOString() }
       req.on('success', function (data) {
         this.emit('poll', data);
       }, this);
-      // DEBUG
+      // TODO DEBUG rm
       console.log('polling..');
       req.get(this.endpoint, options);
       this.lastpolled = new Date();
@@ -412,6 +417,11 @@
     data['items'].forEach(function (item) {
       var sourcenode, newnode;
       Utilities.assert(item.name.length, 'No name for item');
+      if (item.id in streamobjectseen) {
+        return
+      } else {
+        streamobjectseen[ item.id ] = true;
+      }
       switch(item.type) {
         // case 'Dog::RoutedTask':
         case 'ask':
@@ -433,19 +443,13 @@
         case 'notify':
         sourcenode = notifys[ Utilities.last(item.name) ];
         Utilities.assert(sourcenode, 'No notify template for item');
-        if (!(item.id in streamobjectseen)) {
-          newnode = sourcetotarget( sourcenode, item );
-          streamobjectseen[ item.id ] = true;
-        }
+        newnode = sourcetotarget( sourcenode, item );
         break;
         // case 'Dog::Track'
         case 'track':
-        if (!(item.id in streamobjectseen)) {
-          var req = new Request();
-          req.on('success', onpoll);
-          req.get('/dog/stream/' + item.id);
-          streamobjectseen[ item.id ] = true;
-        }
+        var req = new Request();
+        req.on('success', onpoll);
+        req.get('/dog/stream/' + item.id);
         break;
         case 'oneach':
         sourcenode = oneachs[ Utilities.last(item.name) ];
