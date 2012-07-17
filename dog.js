@@ -91,6 +91,7 @@
 // Miscellaneous utility functions
 //
 (function (exports) {
+  'use strict';
 
   // ### Strings
 
@@ -101,15 +102,20 @@
   // ### Arrays
 
   // Delegates to native `Array.isArray(..)` when present
-  exports.isArray = function (arrlike) {
+  function isArray(arrlike) {
     if (Array.isArray) { return Array.isArray(arrlike); }
     return Object.prototype.toString.call(arrlike) === '[object Array]';
-  };
+  }
+  exports.isArray = isArray;
 
   // Collections
 
   exports.last = function (arrlike) {
-    return arrlike[arrlike.length - 1];
+    if ( arrlike.length ) {
+      return arrlike[arrlike.length - 1];
+    } else {
+      return arrlike;
+    }
   };
 
   exports.isEmpty = function (objlike) {
@@ -290,10 +296,9 @@
 
 // Subscribers
 (function (exports) {
+  'use strict';
 
   var Poller, pollinterval, pollcount;
-  pollinterval = 1000;
-  pollcount = 2; // FIXME More total polls needed, naturally
 
   Poller = function (endpoint, interval, totalcount) {
     this.__super__.constructor.call(this);
@@ -342,6 +347,10 @@
   var dogjs = new EventEmitter(),
     tasks, notifys, listens, oneachs, notifyseen = {}, handlerseen = {};
 
+  var pollinterval, pollcount;
+  pollinterval = 1000;
+  pollcount = 2; // FIXME More total polls needed, naturally
+
   function extractview(item) {
     var bag = {};
     if (item.properties && Utilities.isArray(item.properties)) {
@@ -385,27 +394,31 @@
       var sourcenode, newnode;
       Utilities.assert(item.name.length, 'No name for item');
       switch(item.type) {
-        case 'ask': // 'task':
-        sourcenode = tasks[ item.name ];
+        // case 'Dog::RoutedTask':
+        case 'ask':
+        sourcenode = tasks[ Utilities.last(item.name) ];
         Utilities.assert(sourcenode, 'No ask template for item');
-        case 'listen': // 'Dog::RoutedEvent':
-        sourcenode = sourcenode || listens[ item.name ];
+        // case 'Dog::RoutedEvent':
+        case 'listen':
+        sourcenode = sourcenode || listens[ Utilities.last(item.name) ];
         Utilities.assert(sourcenode, 'No listen template for item');
         newnode = sourcetotarget( sourcenode, item );
         if (newnode) {
           newnode.method = 'post';
-          newnode.action = '/dog/stream.json?id=' + item.id;
+          newnode.action = '/dog/stream/' + item.id;
           // use AJAX for `form` submission
           Utilities.ajaxify(newnode);
-          if ((item.name + 'msg') in notifys) { // TODO XXX HACK
+          // FIXME can't just check without the 's'
+          if (Utilities.last(item.name).slice(0,-1) in notifys) {
             var subscriber = new Poller('/dog/stream/' + item.id, pollinterval, pollcount);
             subscriber.on('poll', onpolllist);
             subscriber.poll();
           }
         }
         break;
-        case 'notify': // 'Dog::RoutedMessage':
-        sourcenode = notifys[ item.name ];
+        // case 'Dog::RoutedMessage':
+        case 'notify':
+        sourcenode = notifys[ Utilities.last(item.name) ];
         Utilities.assert(sourcenode, 'No notify template for item');
         if (!(item.id in notifyseen)) {
           newnode = sourcetotarget( sourcenode, item );
