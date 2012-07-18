@@ -3,6 +3,11 @@
 #========================================#
 
 DEFINE event tweet {
+  input username
+  input status
+}
+
+DEFINE message tweetmsg {
   username
   status
 }
@@ -15,7 +20,7 @@ LISTEN TO public VIA http FOR tweets
 
 ON EACH tweet DO
   PRINT 'tweet: ' + tweet.username + ' => ' + tweet.status
-  NOTIFY public VIA stream OF tweet
+  NOTIFY public VIA stream OF tweetmsg USING username: tweet.username, status: tweet.status
 END
 
 #========================================#
