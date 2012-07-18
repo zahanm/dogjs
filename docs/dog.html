@@ -54,6 +54,12 @@ with the contents of a message, for instance</p>
 });
 </code></pre>
 
+<p>The <code>load</code> event signifies that dogjs is done loading it's content into
+the actual HTML structure</p>
+
+<p>THe <code>notify</code> event fires every time a <code>notify</code> is received. In addition to
+whatever else the notify might trigger.</p>
+
 <h3>Target</h3>
 
 <p>The <code>holder</code> attribute in the source node is used to specify what the
@@ -454,8 +460,15 @@ request.get('http://jabber.wocky.org/dog/', { query: .. });
       <span class="p">}</span>
     <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-29">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-29">&#182;</a>               </div>               <p>clean out <code>&lt;dog&gt;</code>, avoiding problems from leaving children in document</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">while</span> <span class="p">(</span><span class="nx">dogblock</span><span class="p">.</span><span class="nx">firstChild</span><span class="p">)</span> <span class="p">{</span>
       <span class="nx">dogblock</span><span class="p">.</span><span class="nx">removeChild</span><span class="p">(</span><span class="nx">dogblock</span><span class="p">.</span><span class="nx">firstChild</span><span class="p">);</span>
-    <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-30">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-30">&#182;</a>               </div>               <p><strong>Setup polling</strong></p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-31">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-31">&#182;</a>               </div>               <p>root stream</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">subscriber</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Poller</span><span class="p">(</span><span class="s1">&#39;/dog/stream&#39;</span><span class="p">,</span> <span class="nx">pollinterval</span><span class="p">,</span> <span class="nx">pollcount</span><span class="p">);</span>
-    <span class="nx">subscriber</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;poll&#39;</span><span class="p">,</span> <span class="nx">onpoll</span><span class="p">);</span>
+    <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-30">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-30">&#182;</a>               </div>               <p><strong>Setup polling</strong></p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-31">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-31">&#182;</a>               </div>               <p>root stream</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="kd">var</span> <span class="nx">loaded</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="nx">subscriber</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Poller</span><span class="p">(</span><span class="s1">&#39;/dog/stream&#39;</span><span class="p">,</span> <span class="nx">pollinterval</span><span class="p">,</span> <span class="nx">pollcount</span><span class="p">);</span>
+    <span class="nx">subscriber</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;poll&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+      <span class="nx">onpoll</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">loaded</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">dogjs</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;load&#39;</span><span class="p">);</span>
+        <span class="nx">loaded</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
     <span class="nx">subscriber</span><span class="p">.</span><span class="nx">poll</span><span class="p">();</span>
 
   <span class="p">},</span> <span class="kc">false</span><span class="p">);</span>

@@ -46,6 +46,12 @@
 //       console.log( data['title'], data['body'] );
 //     });
 //
+// The `load` event signifies that dogjs is done loading it's content into
+// the actual HTML structure
+//
+// THe `notify` event fires every time a `notify` is received. In addition to
+// whatever else the notify might trigger.
+//
 // ### Target
 // The `holder` attribute in the source node is used to specify what the
 // holder node should be.
@@ -517,8 +523,15 @@
     // **Setup polling**
 
     // root stream
+    var loaded = false;
     subscriber = new Poller('/dog/stream', pollinterval, pollcount);
-    subscriber.on('poll', onpoll);
+    subscriber.on('poll', function () {
+      onpoll.apply(this, arguments);
+      if (!loaded) {
+        dogjs.emit('load');
+        loaded = true;
+      }
+    });
     subscriber.poll();
 
   }, false);
