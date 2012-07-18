@@ -509,6 +509,11 @@
       }
     });
 
+    // clean out `<dog>`, avoiding problems from leaving children in document
+    while (dogblock.firstChild) {
+      dogblock.removeChild(dogblock.firstChild);
+    }
+
     // **Setup polling**
 
     // root stream
