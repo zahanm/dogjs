@@ -375,6 +375,16 @@
   pollinterval = 1000;
   pollcount = 2; // FIXME More total polls needed, naturally
 
+  function fqname(block, blockname) {
+    name = [];
+    name.push(blockname);
+    while(block.attributes['oneach'] && (block.parentNode.tagName !== 'dog' || block.parentNode.tagName !== 'body' || block.parentNode.tagName !== 'html')) {
+      name.push(block.attributes['oneach'].value);
+      block = block.parentNode;
+    }
+    return name;
+  }
+
   function extractview(item) {
     var bag = {};
     if (item.properties && Utilities.isArray(item.properties)) {

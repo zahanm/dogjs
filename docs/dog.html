@@ -333,6 +333,16 @@ request.get('http://jabber.wocky.org/dog/', { query: .. });
   <span class="nx">pollinterval</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">;</span>
   <span class="nx">pollcount</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="c1">// FIXME More total polls needed, naturally</span>
 
+  <span class="kd">function</span> <span class="nx">fqname</span><span class="p">(</span><span class="nx">block</span><span class="p">,</span> <span class="nx">blockname</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">name</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="nx">name</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">blockname</span><span class="p">);</span>
+    <span class="k">while</span><span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;oneach&#39;</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">tagName</span> <span class="o">!==</span> <span class="s1">&#39;dog&#39;</span> <span class="o">||</span> <span class="nx">block</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">tagName</span> <span class="o">!==</span> <span class="s1">&#39;body&#39;</span> <span class="o">||</span> <span class="nx">block</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">tagName</span> <span class="o">!==</span> <span class="s1">&#39;html&#39;</span><span class="p">))</span> <span class="p">{</span>
+      <span class="nx">name</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">block</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;oneach&#39;</span><span class="p">].</span><span class="nx">value</span><span class="p">);</span>
+      <span class="nx">block</span> <span class="o">=</span> <span class="nx">block</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">name</span><span class="p">;</span>
+  <span class="p">}</span>
+
   <span class="kd">function</span> <span class="nx">extractview</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">bag</span> <span class="o">=</span> <span class="p">{};</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">properties</span> <span class="o">&amp;&amp;</span> <span class="nx">Utilities</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">properties</span><span class="p">))</span> <span class="p">{</span>
