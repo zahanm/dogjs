@@ -408,6 +408,7 @@
     var targetnode, newnode, method, view;
     Utilities.assert(sourcenode.attributes['holder'], 'No holder for source element');
     targetnode = document.querySelector( sourcenode.attributes['holder'].value );
+    Utilities.assert(targetnode, 'Invalid target for holder');
     method = targetnode.attributes['method'] && targetnode.attributes['method'].value;
     newnode = sourcenode.cloneNode(true);
     view = extractview(item);
@@ -422,8 +423,9 @@
       break;
       case 'replace':
       default:
-      if ( Utilities.trim(targetnode.innerHTML) ) {
-        return null;
+      // clean out `targetnode`
+      while (targetnode.firstChild) {
+        targetnode.removeChild(targetnode.firstChild);
       }
       targetnode.appendChild(newnode);
     }
@@ -438,59 +440,51 @@
     } else {
       streamobjectseen[ item.id ] = true;
     }
-    try {
-      switch(item.type) {
-        // case 'Dog::RoutedTask':
-        case 'ask':
-        sourcenode = asks[ Utilities.last(item.name) ];
-        Utilities.assert(sourcenode, 'No ask template for item');
-        // case 'Dog::RoutedEvent':
-        case 'listen':
-        sourcenode = sourcenode || listens[ Utilities.last(item.name) ];
-        Utilities.assert(sourcenode, 'No listen template for item');
-        sourcenode.setAttribute('data-id', item.id);
-        newnode = sourcetotarget( sourcenode, item );
-        if (newnode) {
-          newnode.method = 'post';
-          newnode.action = '/dog/stream/object/' + item.id;
-          // use AJAX for `form` submission
-          Utilities.ajaxify(newnode);
-        }
-        break;
-        // case 'Dog::RoutedMessage':
-        case 'notify':
-        sourcenode = notifys[ Utilities.last(item.name) ];
-        Utilities.assert(sourcenode, 'No notify template for item');
-        sourcenode.setAttribute('data-id', item.id);
-        newnode = sourcetotarget( sourcenode, item );
-        break;
-        // case 'Dog::Track'
-        case 'track':
-        var req = new Request();
-        req.on('success', onpoll);
-        req.get('/dog/stream/runtime/' + item.id);
-        break;
-        case 'oneach':
-        sourcenode = oneachs[ Utilities.last(item.name) ];
-        Utilities.assert(sourcenode, 'No oneach template for item');
-        sourcenode.setAttribute('data-id', item.id);
-        if (sourcenode.attributes['subscribe'] && sourcenode.attributes['subscribe'].value.match(/true/i)) {
-          var subscriber = new Poller('/dog/stream/lexical/' + item.id, pollinterval, pollcount);
-          subscriber.on('poll', onpoll);
-          subscriber.poll();
-        }
-        break;
-        case 'structure':
-        break;
-        default:
-        throw new Error('Invalid type specification for item');
+    switch(item.type) {
+      // case 'Dog::RoutedTask':
+      case 'ask':
+      sourcenode = asks[ Utilities.last(item.name) ];
+      if (!sourcenode) { return; } // 'No ask template for item'
+      // case 'Dog::RoutedEvent':
+      case 'listen':
+      sourcenode = sourcenode || listens[ Utilities.last(item.name) ];
+      if (!sourcenode) { return; } // 'No listen template for item'
+      sourcenode.setAttribute('data-id', item.id);
+      newnode = sourcetotarget( sourcenode, item );
+      if (newnode) {
+        newnode.method = 'post';
+        newnode.action = '/dog/stream/object/' + item.id;
+        // use AJAX for `form` submission
+        Utilities.ajaxify(newnode);
       }
-    } catch (err) {
-      if (err instanceof Utilities.AssertionError) {
-        console.warn(err);
-      } else {
-        throw err;
+      break;
+      // case 'Dog::RoutedMessage':
+      case 'notify':
+      sourcenode = notifys[ Utilities.last(item.name) ];
+      if (!sourcenode) { return; } // 'No notify template for item'
+      sourcenode.setAttribute('data-id', item.id);
+      newnode = sourcetotarget( sourcenode, item );
+      break;
+      // case 'Dog::Track'
+      case 'track':
+      var req = new Request();
+      req.on('success', onpoll);
+      req.get('/dog/stream/runtime/' + item.id);
+      break;
+      case 'oneach':
+      sourcenode = oneachs[ Utilities.last(item.name) ];
+      if (!sourcenode) { return; } // 'No oneach template for item'
+      sourcenode.setAttribute('data-id', item.id);
+      if (sourcenode.attributes['subscribe'] && sourcenode.attributes['subscribe'].value.match(/true/i)) {
+        var subscriber = new Poller('/dog/stream/lexical/' + item.id, pollinterval, pollcount);
+        subscriber.on('poll', onpoll);
+        subscriber.poll();
       }
+      break;
+      case 'structure':
+      break;
+      default:
+      throw new Error('Invalid type specification for item');
     }
   }
 
