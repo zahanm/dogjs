@@ -7,6 +7,10 @@ DEFINE tweet {
   status
 }
 
+DEFINE comment {
+  text
+}
+
 #========================================#
 #                 Main                   #
 #========================================#
@@ -16,6 +20,11 @@ LISTEN TO public VIA http FOR tweets
 ON EACH tweet DO
   PRINT 'tweet: ' + tweet.username + ' => ' + tweet.status
   NOTIFY public VIA stream OF tweet
+
+  LISTEN TO public VIA http FOR comments
+  ON EACH comment DO
+    PRINT 'Hello'
+  END
 END
 
 #========================================#

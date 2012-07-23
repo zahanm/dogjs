@@ -171,6 +171,7 @@
   AssertionError.prototype.toString = function() {
     return 'AssertionError: ' + this.msg;
   };
+  exports.AssertionError = AssertionError;
 
   exports.assert = function (exp, msg) {
     if (!exp) {
@@ -379,7 +380,7 @@
 
   var pollinterval, pollcount;
   pollinterval = 1000;
-  pollcount = 2; // FIXME More total polls needed, naturally
+  pollcount = 20; // FIXME More total polls needed, naturally
 
   function fqname(block, blockname) {
     name = [];
@@ -429,15 +430,15 @@
     return newnode;
   }
 
-  function onpoll(data) {
-    data['items'].forEach(function (item) {
-      var sourcenode, newnode;
-      Utilities.assert(item.name.length, 'No name for item');
-      if (item.id in streamobjectseen) {
-        return
-      } else {
-        streamobjectseen[ item.id ] = true;
-      }
+  function runtimeactions(item) {
+    var sourcenode, newnode;
+    Utilities.assert(item.name.length, 'No name for item');
+    if (item.id in streamobjectseen) {
+      return;
+    } else {
+      streamobjectseen[ item.id ] = true;
+    }
+    try {
       switch(item.type) {
         // case 'Dog::RoutedTask':
         case 'ask':
@@ -451,7 +452,7 @@
         newnode = sourcetotarget( sourcenode, item );
         if (newnode) {
           newnode.method = 'post';
-          newnode.action = '/dog/stream/' + item.id;
+          newnode.action = '/dog/stream/object/' + item.id;
           // use AJAX for `form` submission
           Utilities.ajaxify(newnode);
         }
@@ -467,22 +468,35 @@
         case 'track':
         var req = new Request();
         req.on('success', onpoll);
-        req.get('/dog/stream/' + item.id);
+        req.get('/dog/stream/runtime/' + item.id);
         break;
         case 'oneach':
         sourcenode = oneachs[ Utilities.last(item.name) ];
         Utilities.assert(sourcenode, 'No oneach template for item');
         sourcenode.setAttribute('data-id', item.id);
         if (sourcenode.attributes['subscribe'] && sourcenode.attributes['subscribe'].value.match(/true/i)) {
-          var subscriber = new Poller('/dog/stream/' + item.id, pollinterval, pollcount);
+          var subscriber = new Poller('/dog/stream/lexical/' + item.id, pollinterval, pollcount);
           subscriber.on('poll', onpoll);
           subscriber.poll();
         }
         break;
+        case 'structure':
+        break;
         default:
         throw new Error('Invalid type specification for item');
       }
-    });
+    } catch (err) {
+      if (err instanceof Utilities.AssertionError) {
+        console.warn(err);
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  function onpoll(data) {
+    data['runtime'].forEach(runtimeactions);
+    data['lexical'].forEach(runtimeactions);
   }
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -524,7 +538,7 @@
 
     // root stream
     var loaded = false;
-    subscriber = new Poller('/dog/stream', pollinterval, pollcount);
+    subscriber = new Poller('/dog/stream/runtime/root', pollinterval, pollcount);
     subscriber.on('poll', function () {
       onpoll.apply(this, arguments);
       if (!loaded) {
