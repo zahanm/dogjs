@@ -380,7 +380,7 @@
 
   var pollinterval, pollcount;
   pollinterval = 1000;
-  pollcount = 20; // FIXME More total polls needed, naturally
+  pollcount = 200; // FIXME More total polls needed, naturally
 
   function fqname(block, blockname) {
     name = [];
@@ -409,7 +409,7 @@
     Utilities.assert(sourcenode.attributes['holder'], 'No holder for source element');
     targetnode = document.querySelector( sourcenode.attributes['holder'].value );
     Utilities.assert(targetnode, 'Invalid target for holder');
-    method = targetnode.attributes['method'] && targetnode.attributes['method'].value;
+    method = targetnode.attributes['method'] && targetnode.attributes['method'].value || 'fill';
     newnode = sourcenode.cloneNode(true);
     view = extractview(item);
     if (!Utilities.isEmpty(view)) {
@@ -421,13 +421,22 @@
       case 'append':
       targetnode.appendChild(newnode);
       break;
-      case 'replace':
-      default:
+      case 'prepend':
+      targetnode.insertBefore(newnode, targetnode.firstChild);
+      break;
+      case 'fill':
+      if (Utilities.trim(targetnode.innerHTML)) {
+        break;
+      }
+      case 'overwrite':
       // clean out `targetnode`
       while (targetnode.firstChild) {
         targetnode.removeChild(targetnode.firstChild);
       }
       targetnode.appendChild(newnode);
+      break;
+      default:
+      throw new Error('Invalid method specified');
     }
     return newnode;
   }
