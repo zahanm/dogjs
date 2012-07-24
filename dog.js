@@ -482,6 +482,7 @@
       }
       break;
       case 'structure':
+      case 'function':
       break;
       default:
       throw new Error('Invalid type specification for item');
