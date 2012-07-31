@@ -222,9 +222,12 @@
   EventEmitter.prototype.emit = function (eventname) {
     if (this.listeners[eventname] !== undefined) {
       var args = Array.prototype.slice.call(arguments);
+      var retvalues = [];
       this.listeners[eventname].forEach(function (listener) {
-        listener.f.apply(listener.c, args.slice(1));
+        var r = listener.f.apply(listener.c, args.slice(1));
+        retvalues.push(r);
       }, this);
+      return retvalues;
     }
   };
 
@@ -334,10 +337,11 @@
     }
     this.__super__.constructor.call(this);
     this.endpoint = endpoint;
-    this.interval = interval;
+    this.interval = interval || 1000;
     this.totalcount = totalcount || 1000;
     this.lastpolled = null;
     this.count = 0;
+    this.open = true;
   };
 
   Poller.prototype = new EventEmitter();
@@ -345,14 +349,13 @@
   Poller.prototype.__super__ = EventEmitter.prototype;
 
   Poller.prototype.poll = function () {
-    // TODO DEBUG rm
-    console.log(this.count);
-    if (this.count < this.totalcount) {
+    if (this.open && this.count < this.totalcount) {
       var req, options = {};
       req = new Request();
       // FIXME if (this.lastpolled) { options['after'] = this.lastpolled.toISOString() }
       req.on('success', function (data) {
-        this.emit('poll', data);
+        var retvalues = this.emit('poll', data);
+        if ( !retvalues.reduce(function (l, r) { return l && r; }) ) { this.open = false; }
       }, this);
       req.get(this.endpoint, options);
       this.lastpolled = new Date();
@@ -378,7 +381,7 @@
 
   var pollinterval, pollcount;
   pollinterval = 1000;
-  pollcount = 200; // FIXME More total polls needed, naturally
+  pollcount = 1000; // FIXME More total polls needed, naturally
 
   function fqname(block, blockname) {
     name = [];
@@ -474,9 +477,9 @@
       break;
       // case 'Dog::Track'
       case 'track':
-      var req = new Request();
-      req.on('success', onpoll);
-      req.get('/dog/stream/runtime/' + item.id);
+      var subscriber = new Poller('/dog/stream/runtime/' + item.id);
+      subscriber.on('poll', onpoll);
+      subscriber.poll();
       break;
       case 'oneach':
       sourcenode = oneachs[ Utilities.last(item.name) ];
@@ -499,6 +502,10 @@
   function onpoll(data) {
     data['runtime'].forEach(runtimeactions);
     data['lexical'].forEach(runtimeactions);
+    if (data['self'] && data['self']['type'] === 'track' && data['self']['finished']) {
+      return false;
+    }
+    return true;
   }
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -542,11 +549,12 @@
     var loaded = false;
     subscriber = new Poller('/dog/stream/runtime/root', pollinterval, pollcount);
     subscriber.on('poll', function () {
-      onpoll.apply(this, arguments);
+      var retvalue = onpoll.apply(this, arguments);
       if (!loaded) {
         dogjs.emit('load');
         loaded = true;
       }
+      return retvalue;
     });
     subscriber.poll();
 
