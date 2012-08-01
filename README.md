@@ -1,4 +1,105 @@
-### dogjs
 
-A Dog frontend framework
+||=======\       / ======= \      / ====== \                ||     / ===== \
+||        \      ||       ||     /          \               ||    |         |
+||         \     ||       ||    ||           |              ||     \
+||          |    ||       ||    ||       =====              ||       =====
+||         /     ||       ||    ||                          ||             \
+||        /      ||       ||     \          /     \         /     |         |
+||=======/       \ ======= /      \ ====== /       \ ===== /       \ ===== /
+
+A [Dog](http://dog-lang.org) framework for HTML frontends.
+
+### HTML Structure
+Each Dog structure has a matching HTML implementation
+
+These templates are kept together in a section for dog
+templates only, the `<dog> .. </dog>` tag.
+Convention places this section at the top of your HTML
+file.
+
+#### notify
+
+    <section notify="notification_name" holder="selector">
+      {{ title }} .. {{ body }}
+    </section>
+
+#### ask
+
+    <form ask="task_name" holder="selector">
+      <input type="text" name="input_name">
+    </form>
+
+#### listen
+
+    <form listen="listen_name" holder="selector">
+      <input type="text" name="input_name">
+    </form>
+
+#### oneach
+
+    <section oneach="oneach_name" subscribe="true">
+      .. notify, ask and listen tags ..
+    </section>
+
+### Tracks
+Tracks are instances of an event submitted to Dog.
+For example, the submission to an `ASK` or a `LISTEN` is instantiated as a `track` on the
+stream.
+
+You access `track`s by subscribing to the stream of the `ON EACH` that it corresponds to.
+That is the function of the `subscribe` attribute in the `oneach` tag.
+
+### Events
+You register listeners for events that can execute arbitrary javascript
+with the contents of a message, for instance
+
+    dogjs.on('message', function (data) {
+      console.log( data['title'], data['body'] );
+    });
+
+The `load` event signifies that dogjs is done loading it's content into
+the actual HTML structure
+
+THe `notify` event fires every time a `notify` is received. In addition to
+whatever else the notify might trigger.
+
+### Target
+The `holder` attribute in the source node is used to specify what the
+holder node should be.
+Usually, takes the form of a CSS selector, that should specify single DOM node.
+
+    <form listen=".." holder="#tweetbox">
+      ..
+    </form>
+
+Can also be the special value `dialog`, which targets a modal dialog that is
+created for this element.
+
+### Method
+The `method` attribute in the holder node is used to specify
+how the node is updated
+
+#### append
+Append a new child of the holder node
+
+#### prepend
+Add a new child at the beginning of the holder node
+
+#### enqueue
+Maintain queue for node, when current node clears
+
+#### overwrite
+Always overwrite holder node
+
+#### update
+Same as overwrite, except only triggered when it's the same object
+
+#### fill
+Currently called `replace`, only fill in if holder node is empty
+
+### Browser Requirements
+HTML5 compatibilty
+
+- `element.addEventListener( .. )`
+- `fd = new FormData(form)`
 
