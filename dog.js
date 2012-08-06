@@ -86,7 +86,8 @@
 
   // Send form contents over AJAX.
   // Intercepts the `submit` event, and makes the submission manually.
-  exports.ajaxify = function (form) {
+  exports.ajaxify = function (form, options) {
+    options = options || {};
     form.addEventListener('submit', function (ev) {
       Utilities.assert(!ev.defaultPrevented, 'Form submit was canceled by another party');
       if (form.checkValidity) {
@@ -95,11 +96,14 @@
       ev.preventDefault();
       var req = new Request();
       req.on('success', function (data) {
-        console.log(data);
-        // TODO Utilities.assert(data['success']);
+        // what I want to do
+        var ev = new CustomEvent('submitted:' + form.dataset['type']);
+        form.dispatchEvent(ev);
       });
       req.post(form.action, new FormData(form));
-      form.reset();
+      if (options.resetForm) {
+        form.reset();
+      }
     });
   };
 
@@ -323,6 +327,8 @@
     } else {
       newnode.innerHTML = sourcenode.innerHTML;
     }
+    newnode.dataset['id'] = item['id'];
+    newnode.dataset['type'] = item['type'];
     switch(method) {
       case 'append':
       targetnode.appendChild(newnode);
@@ -332,7 +338,7 @@
       break;
       case 'fill':
       if (Utilities.trim(targetnode.innerHTML)) {
-        break;
+        return;
       }
       case 'overwrite':
       // clean out `targetnode`
@@ -344,6 +350,7 @@
       default:
       throw new Error('Invalid method specified');
     }
+    dogjs.emit('add:node', newnode);
     return newnode;
   }
 
@@ -364,7 +371,6 @@
       case 'listen':
       sourcenode = sourcenode || listens[ Utilities.last(item.name) ];
       if (!sourcenode) { return; } // 'No listen template for item'
-      sourcenode.setAttribute('data-id', item.id);
       newnode = sourcetotarget( sourcenode, item );
       if (newnode) {
         newnode.method = 'post';
@@ -377,7 +383,6 @@
       case 'notify':
       sourcenode = notifys[ Utilities.last(item.name) ];
       if (!sourcenode) { return; } // 'No notify template for item'
-      sourcenode.setAttribute('data-id', item.id);
       newnode = sourcetotarget( sourcenode, item );
       break;
       // case 'Dog::Track'
@@ -389,7 +394,7 @@
       case 'oneach':
       sourcenode = oneachs[ Utilities.last(item.name) ];
       if (!sourcenode) { return; } // 'No oneach template for item'
-      sourcenode.setAttribute('data-id', item.id);
+      sourcenode.dataset['id'] = item['id'];
       if (sourcenode.attributes['subscribe'] && sourcenode.attributes['subscribe'].value.match(/true/i)) {
         var subscriber = new Poller('/dog/stream/lexical/' + item.id, pollinterval, pollcount);
         subscriber.on('poll', onpoll);
