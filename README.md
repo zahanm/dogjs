@@ -97,6 +97,28 @@ Same as overwrite, except only triggered when it's the same object
 #### fill
 Currently called `replace`, only fill in if holder node is empty
 
+### Pagination
+We can work on different pages, emulated by `dogjs`.
+
+Two special keys that are required: `default` and `templates`.
+They denote exactly what oyu would expect.
+
+    <script type="text/javascript" charset="utf-8">
+      dogjs.pages({
+        'default': 'index.html',
+        'templates': 'templates.html',
+        'about': 'about.html',
+        'admin': 'admin.html'
+      });
+    </script>
+
+`dogjs` then handles the details of switching between these pages.
+It uses url-fragments to manage state. Namely,
+
+    http://www.example.com/#admin
+
+will navigate to the `admin` page.
+
 ### Browser Requirements
 HTML5 compatibilty
 
