@@ -58,7 +58,12 @@ with the contents of a message, for instance
     });
 
 The `load` event signifies that dogjs is done loading it's content into
-the actual HTML structure
+the actual HTML structure. Use it to signify page load.
+
+The `submitted` event is namespaced. It gets serialized as `submitted:command:name`
+where `command` is a command like `ask` or `listen`, and `name` is the name of
+said command. It gets fired when a form submission occurs for an `ASK` or `LISTEN`
+to the server, **after** the response is received back on the client.
 
 THe `notify` event fires every time a `notify` is received. In addition to
 whatever else the notify might trigger.

@@ -96,8 +96,8 @@
       ev.preventDefault();
       var req = new Request();
       req.on('success', function (data) {
-        // what I want to do
-        var ev = new CustomEvent('submitted:' + form.dataset['type']);
+        // event that can be subscribed to
+        var ev = new CustomEvent('submitted', { detail: data });
         form.dispatchEvent(ev);
       });
       req.post(form.action, new FormData(form));
@@ -105,6 +105,7 @@
         form.reset();
       }
     });
+    return form;
   };
 
 }(window.Utilities = {}));
@@ -377,6 +378,10 @@
         newnode.action = '/dog/stream/object/' + item.id;
         // use AJAX for `form` submission
         Utilities.ajaxify(newnode);
+        newnode.addEventListener('submitted', function (ev) {
+          var eventtype = 'submitted' + ':' + item.type + ':' + Utilities.last(item.name);
+          dogjs.emit(eventtype, ev.detail);
+        });
       }
       break;
       // case 'Dog::RoutedMessage':
