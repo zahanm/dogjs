@@ -493,6 +493,10 @@
       req.on('success', function (fetchedDoc) {
         window.location.hash = '#' + destination;
         document.body.innerHTML = fetchedDoc.body.innerHTML;
+
+        // FIXME scripts on page do not run
+        var scripts = fetchedDoc.getElementsByTagName('script');
+
         callback && callback();
         dogjs.emit('pagechange');
       });
