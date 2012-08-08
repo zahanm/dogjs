@@ -65,6 +65,9 @@ where `command` is a command like `ask` or `listen`, and `name` is the name of
 said command. It gets fired when a form submission occurs for an `ASK` or `LISTEN`
 to the server, **after** the response is received back on the client.
 
+The `pagechange` event works as the name would suggest. Emitted whenever
+the page is changed successfully.
+
 THe `notify` event fires every time a `notify` is received. In addition to
 whatever else the notify might trigger.
 

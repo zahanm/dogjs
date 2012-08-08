@@ -298,6 +298,7 @@
 
   // `dogjs` is an augmented EventEmitter instance
   var dogjs = new EventEmitter(),
+    pageConfig = null,
     asks, notifys, listens, oneachs, streamobjectseen = {};
 
   var pollinterval, pollcount;
@@ -434,7 +435,7 @@
     return true;
   }
 
-  function fetchTemplates(pageConfig) {
+  function fetchTemplates() {
     var req = new Request({ forceHTML: true });
     req.on('success', function (dogblock) {
       Utilities.assert(dogblock, 'Missing templates from ' + pageConfig['templates']);
@@ -486,22 +487,35 @@
   }
 
   function changePage(destination, callback) {
-    var req = new Request({ forceHTML: true });
-    req.get(destination);
-    req.on('success', function (fetchedDoc) {
-      document.body.innerHTML = fetchedDoc.body.innerHTML;
-      callback();
-    });
+    if (destination && destination in pageConfig) {
+      var req = new Request({ forceHTML: true });
+      req.get(pageConfig[destination]);
+      req.on('success', function (fetchedDoc) {
+        window.location.hash = '#' + destination;
+        document.body.innerHTML = fetchedDoc.body.innerHTML;
+        callback && callback();
+        dogjs.emit('pagechange');
+      });
+    } else {
+      console.error('Invalid page destination: ' + destination);
+    }
   }
 
-  function setupPages(pageConfig) {
+  function setupPages(config) {
+    pageConfig = config;
+
     Utilities.assert(pageConfig['templates'], "No 'templates' file specified.");
     Utilities.assert(pageConfig['default'], "No 'default' page file specified.");
 
-    changePage(pageConfig['default'], fetchTemplates.bind(this, pageConfig));
+    if (window.location.hash && window.location.hash.substring(1) in pageConfig) {
+      changePage(window.location.hash.substring(1), fetchTemplates);
+    } else {
+      changePage('default', fetchTemplates);
+    }
   }
 
   exports.dogjs = dogjs;
   dogjs.setupPages = setupPages;
+  dogjs.changePage = changePage;
 
 }(window));
