@@ -434,10 +434,7 @@
     return true;
   }
 
-  function setupPages(pageConfig) {
-    Utilities.assert(pageConfig['templates'], "No 'templates' file specified.");
-    Utilities.assert(pageConfig['default'], "No 'default' page file specified.");
-
+  function fetchTemplates(pageConfig) {
     var req = new Request({ forceHTML: true });
     req.on('success', function (dogblock) {
       Utilities.assert(dogblock, 'Missing templates from ' + pageConfig['templates']);
@@ -486,6 +483,22 @@
 
     });
     req.get(pageConfig['templates']);
+  }
+
+  function changePage(destination, callback) {
+    var req = new Request({ forceHTML: true });
+    req.get(destination);
+    req.on('success', function (fetchedDoc) {
+      document.body.innerHTML = fetchedDoc.body.innerHTML;
+      callback();
+    });
+  }
+
+  function setupPages(pageConfig) {
+    Utilities.assert(pageConfig['templates'], "No 'templates' file specified.");
+    Utilities.assert(pageConfig['default'], "No 'default' page file specified.");
+
+    changePage(pageConfig['default'], fetchTemplates.bind(this, pageConfig));
   }
 
   exports.dogjs = dogjs;
