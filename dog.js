@@ -27,6 +27,18 @@
   }
   exports.isArray = isArray;
 
+  // needs to be invoked on arrlike object
+  function filterOnly(arrlike, attr, validset) {
+    var valid = {};
+    validset.forEach(function (v) {
+      valid[v] = true;
+    });
+    return Array.prototype.filter.call(arrlike, function (el) {
+      return (el[attr] || el) in valid;
+    });
+  }
+  exports.filterOnly = filterOnly;
+
   // ### Collections
 
   exports.last = function (arrlike) {
@@ -331,7 +343,7 @@
     var targetnode, newnode, method, view;
     Utilities.assert(sourcenode.attributes['holder'], 'No holder for source element');
     targetnode = document.querySelector( sourcenode.attributes['holder'].value );
-    Utilities.assert(targetnode, 'Invalid target for holder');
+    if (!targetnode) { console.info('Invalid target for holder:', sourcenode.attributes['holder'].value); return; }
     method = targetnode.attributes['method'] && targetnode.attributes['method'].value || 'fill';
     newnode = sourcenode.cloneNode(true);
     view = extractview(item);
@@ -427,12 +439,27 @@
   }
 
   function onpoll(data) {
-    data['runtime'].forEach(runtimeactions);
-    data['lexical'].forEach(runtimeactions);
-    if (data['self'] && data['self']['type'] === 'track' && data['self']['finished']) {
-      return false;
+    var types = null, unsubscribe = false;
+    if (data['self'] && data['self']['type'] === 'track') {
+      switch (data['self']['state']) {
+        case 'open':
+        types = ['ask', 'listen', 'notify'];
+        break;
+        case 'listening':
+        types = ['listen', 'notify'];
+        unsubscribe = true;
+        break;
+        case 'closed':
+        default:
+        types = ['notify'];
+        unsubscribe = true;
+      }
+    } else {
+      types = ['track'];
     }
-    return true;
+    Utilities.filterOnly(data['runtime'], 'type', types).forEach(runtimeactions);
+    data['lexical'].forEach(runtimeactions);
+    return !unsubscribe;
   }
 
   function fetchTemplates() {
@@ -495,6 +522,7 @@
         document.body.innerHTML = fetchedDoc.body.innerHTML;
 
         // FIXME scripts on page do not run
+        // would like to append them to the `document.body`
         var scripts = fetchedDoc.getElementsByTagName('script');
 
         callback && callback();
