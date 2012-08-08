@@ -182,9 +182,14 @@
   function loaded(req) {
     if (req.xhp.status.toString()[0] === '2') {
       var data = null;
-      try {
-        data = JSON.parse(req.xhp.responseText);
-      } catch (err) { }
+      if (req.forceHTML) {
+        data = req.xhp.responseXML;
+      } else {
+        // assume JSON format with fallback
+        try {
+          data = JSON.parse(req.xhp.responseText);
+        } catch (err) { }
+      }
       req.emit('success', data || req.xhp.responseText, req.xhp.statusText);
     } else {
       console.log('Successful request with non-2XX status.');
@@ -198,7 +203,7 @@
     console.log(req.xhp);
   }
 
-  function Request() {
+  function Request(options) {
     // Call parent constructor
     this.__super__.constructor.call(this);
     this.xhp = new XMLHttpRequest();
@@ -209,6 +214,12 @@
     this.xhp.addEventListener("error", function () {
       errored(req);
     });
+    options = options || {};
+    this.forceHTML = !!options.forceHTML;
+    if (this.forceHTML) {
+      this.xhp.overrideMimeType('text/html');
+      this.xhp.responseType = 'document';
+    }
   }
   // inherit from EventEmitter
   Request.prototype = new EventEmitter();
@@ -423,58 +434,61 @@
     return true;
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
-    var elems, dogblock, subscriber;
-    elems = document.getElementsByTagName('dog');
-    Utilities.assert(elems.length, 'Missing <dog> .. </dog> templates section');
-    dogblock = elems[0];
-    dogblock.style.display = 'none';
+  function setupPages(pageConfig) {
+    Utilities.assert(pageConfig['templates'], "No 'templates' file specified.");
+    Utilities.assert(pageConfig['default'], "No 'default' page file specified.");
 
-    asks = {},
-    oneachs = {},
-    listens = {},
-    notifys = {};
+    var req = new Request({ forceHTML: true });
+    req.on('success', function (dogblock) {
+      Utilities.assert(dogblock, 'Missing templates from ' + pageConfig['templates']);
 
-    // **Scan for Dog tags in the templates section**
-    elems = dogblock.getElementsByTagName('form');
-    Array.prototype.forEach.call(elems, function (elem) {
-      if (elem.attributes['ask']) {
-        asks[ elem.attributes['ask'].value ] = elem;
-      } else if (elem.attributes['listen']) {
-        listens[ elem.attributes['listen'].value ] = elem;
-      }
+      asks = {},
+      oneachs = {},
+      listens = {},
+      notifys = {};
+
+      // Scan for Dog tags in the templates section
+      // ------------------------------------------
+      var elems, subscriber;
+
+      elems = dogblock.getElementsByTagName('form');
+      Array.prototype.forEach.call(elems, function (elem) {
+        if (elem.attributes['ask']) {
+          asks[ elem.attributes['ask'].value ] = elem;
+        } else if (elem.attributes['listen']) {
+          listens[ elem.attributes['listen'].value ] = elem;
+        }
+      });
+      elems = dogblock.getElementsByTagName('section');
+      Array.prototype.forEach.call(elems, function (elem) {
+        if (elem.attributes['notify']) {
+          notifys[ elem.attributes['notify'].value ] = elem;
+        } else if (elem.attributes['oneach']) {
+          oneachs[ elem.attributes['oneach'].value ] = elem;
+        }
+      });
+
+      // Setup polling
+      // -------------
+
+      // root stream
+      var loaded = false;
+      subscriber = new Poller('/dog/stream/runtime/root', pollinterval, pollcount);
+      subscriber.on('poll', function () {
+        var retvalue = onpoll.apply(this, arguments);
+        if (!loaded) {
+          dogjs.emit('load');
+          loaded = true;
+        }
+        return retvalue;
+      });
+      subscriber.poll();
+
     });
-    elems = dogblock.getElementsByTagName('section');
-    Array.prototype.forEach.call(elems, function (elem) {
-      if (elem.attributes['notify']) {
-        notifys[ elem.attributes['notify'].value ] = elem;
-      } else if (elem.attributes['oneach']) {
-        oneachs[ elem.attributes['oneach'].value ] = elem;
-      }
-    });
-
-    // clean out `<dog>`, avoiding problems from leaving children in document
-    while (dogblock.firstChild) {
-      dogblock.removeChild(dogblock.firstChild);
-    }
-
-    // **Setup polling**
-
-    // root stream
-    var loaded = false;
-    subscriber = new Poller('/dog/stream/runtime/root', pollinterval, pollcount);
-    subscriber.on('poll', function () {
-      var retvalue = onpoll.apply(this, arguments);
-      if (!loaded) {
-        dogjs.emit('load');
-        loaded = true;
-      }
-      return retvalue;
-    });
-    subscriber.poll();
-
-  }, false);
+    req.get(pageConfig['templates']);
+  }
 
   exports.dogjs = dogjs;
+  dogjs.setupPages = setupPages;
 
 }(window));

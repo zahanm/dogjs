@@ -106,14 +106,14 @@ Currently called `replace`, only fill in if holder node is empty
 We can work on different pages, emulated by `dogjs`.
 
 Two special keys that are required: `default` and `templates`.
-They denote exactly what oyu would expect.
+They denote exactly what you would expect.
 
     <script type="text/javascript" charset="utf-8">
-      dogjs.pages({
-        'default': 'index.html',
-        'templates': 'templates.html',
-        'about': 'about.html',
-        'admin': 'admin.html'
+      dogjs.setupPages({
+        'default': '/index.html',
+        'templates': '/templates.html',
+        'about': '/about.html',
+        'admin': '/admin.html'
       });
     </script>
 
