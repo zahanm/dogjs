@@ -513,7 +513,17 @@
     req.get(pageConfig['templates']);
   }
 
-  function changePage(destination, callback) {
+  function changePage(destination) {
+    // FIXME should not have to do this reload hack
+    if (destination && destination in pageConfig) {
+      window.location.hash = '#' + destination;
+      window.location.reload();
+    } else {
+      console.error(destination + ' is not a valid page name.');
+    }
+  }
+
+  function loadPageContents(destination, callback) {
     if (destination && destination in pageConfig) {
       var req = new Request({ forceHTML: true });
       req.get(pageConfig[destination]);
@@ -529,7 +539,7 @@
         dogjs.emit('pagechange');
       });
     } else {
-      console.error('Invalid page destination: ' + destination);
+      console.error('Invalid page contents to load: ' + destination);
     }
   }
 
@@ -540,9 +550,9 @@
     Utilities.assert(pageConfig['default'], "No 'default' page file specified.");
 
     if (window.location.hash && window.location.hash.substring(1) in pageConfig) {
-      changePage(window.location.hash.substring(1), fetchTemplates);
+      loadPageContents(window.location.hash.substring(1), fetchTemplates);
     } else {
-      changePage('default', fetchTemplates);
+      loadPageContents('default', fetchTemplates);
     }
   }
 
