@@ -538,12 +538,22 @@
       req.get(pageConfig[destination]);
       req.on('success', function (fetchedDoc) {
         window.location.hash = '#' + destination;
-        document.body.innerHTML = fetchedDoc.body.innerHTML;
-
-        // FIXME scripts on page do not run
-        // would like to append them to the `document.body`
+        // need to append scripts to body separately
+        // so that they are executed
         var scripts = fetchedDoc.getElementsByTagName('script');
-
+        scripts = Array.prototype.map.call(scripts, function (s) {
+          return s.parentNode.removeChild(s);
+        });
+        // transfer the contents
+        document.body.innerHTML = fetchedDoc.body.innerHTML;
+        // append the scripts
+        Array.prototype.forEach.call(scripts, function (s) {
+          var scriptnode = document.createElement('script');
+          scriptnode.type = 'text/javascript';
+          scriptnode.charset = 'utf-8';
+          scriptnode.innerHTML = s.innerHTML;
+          document.body.appendChild(scriptnode);
+        });
         callback && callback();
         dogjs.emit('pageload');
       });
