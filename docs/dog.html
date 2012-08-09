@@ -435,7 +435,8 @@ request.get('http://jabber.wocky.org/dog/', { query: .. });
       <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">hash</span> <span class="o">=</span> <span class="s1">&#39;#&#39;</span> <span class="o">+</span> <span class="nx">destination</span><span class="p">;</span>
       <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">reload</span><span class="p">();</span>
     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-      <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">destination</span> <span class="o">+</span> <span class="s1">&#39; is not a valid page name.&#39;</span><span class="p">);</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span> <span class="o">+</span> <span class="nx">destination</span> <span class="o">+</span> <span class="s2">&quot;&#39; is not a valid page name.&quot;</span><span class="p">);</span>
+      <span class="p">(</span><span class="s1">&#39;default&#39;</span> <span class="k">in</span> <span class="nx">pageConfig</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">changePage</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">);</span>
     <span class="p">}</span>
   <span class="p">}</span>
 
@@ -449,7 +450,7 @@ request.get('http://jabber.wocky.org/dog/', { query: .. });
 would like to append them to the <code>document.body</code></p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="kd">var</span> <span class="nx">scripts</span> <span class="o">=</span> <span class="nx">fetchedDoc</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">&#39;script&#39;</span><span class="p">);</span>
 
         <span class="nx">callback</span> <span class="o">&amp;&amp;</span> <span class="nx">callback</span><span class="p">();</span>
-        <span class="nx">dogjs</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;pagechange&#39;</span><span class="p">);</span>
+        <span class="nx">dogjs</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;pageload&#39;</span><span class="p">);</span>
       <span class="p">});</span>
     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
       <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Invalid page contents to load: &#39;</span> <span class="o">+</span> <span class="nx">destination</span><span class="p">);</span>

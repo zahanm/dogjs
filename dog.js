@@ -519,7 +519,8 @@
       window.location.hash = '#' + destination;
       window.location.reload();
     } else {
-      console.error(destination + ' is not a valid page name.');
+      console.error("'" + destination + "' is not a valid page name.");
+      ('default' in pageConfig) && changePage('default');
     }
   }
 
@@ -536,7 +537,7 @@
         var scripts = fetchedDoc.getElementsByTagName('script');
 
         callback && callback();
-        dogjs.emit('pagechange');
+        dogjs.emit('pageload');
       });
     } else {
       console.error('Invalid page contents to load: ' + destination);
