@@ -28,7 +28,8 @@
   exports.isArray = isArray;
 
   // needs to be invoked on arrlike object
-  function filterOnly(arrlike, attr, validset) {
+  exports.filterOnly = function (arrlike, attr, validset) {
+    if (!validset) { validset = attr; attr = null; }
     var valid = {};
     validset.forEach(function (v) {
       valid[v] = true;
@@ -37,7 +38,6 @@
       return (el[attr] || el) in valid;
     });
   }
-  exports.filterOnly = filterOnly;
 
   // ### Collections
 
@@ -60,14 +60,22 @@
   };
 
   // iterator format => `function (value, key, i) { .. }`
-  exports.forEach = function (objlike, iterator) {
-    var key, i = 0;
+  function map(objlike, iterator) {
+    var key, i = 0, items;
+    items = [];
     for (key in objlike) {
       if (objlike.hasOwnProperty(key)) {
-        iterator(objlike[key], key, i);
+        items.push(iterator(objlike[key], key, i));
         i++;
       }
     }
+    return items;
+  };
+  exports.map = map;
+
+  // iterator format is same as `map()`
+  exports.forEach = function (objlike, iterator) {
+    map.apply(this, arguments);
   };
 
   // ### Contract-style programming
