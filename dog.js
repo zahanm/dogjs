@@ -148,9 +148,12 @@
     this.listeners = {};
   }
 
-  EventEmitter.prototype.on = function (eventname, callback, context) {
+  EventEmitter.prototype.on = function (eventname, callback, context, runonemit) {
     if (this.listeners[eventname] === undefined) {
       this.listeners[eventname] = [];
+      this.listeners[eventname].emitted = false;
+    } else if (runonemit && this.listeners[eventname].emitted) {
+      callback.apply(context || this);
     }
     this.listeners[eventname].push({ f: callback, c: context || this });
   };
@@ -163,6 +166,7 @@
         var r = listener.f.apply(listener.c, args.slice(1));
         retvalues.push(r);
       }, this);
+      this.listeners[eventname].emitted = true;
       return retvalues;
     }
   };
