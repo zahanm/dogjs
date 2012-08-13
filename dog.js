@@ -550,16 +550,17 @@
         scripts = Array.prototype.map.call(scripts, function (s) {
           return s.parentNode.removeChild(s);
         });
-        // transfer the contents
-        document.body.innerHTML = fetchedDoc.body.innerHTML;
         // append the scripts
         Array.prototype.forEach.call(scripts, function (s) {
           var scriptnode = document.createElement('script');
-          scriptnode.type = 'text/javascript';
-          scriptnode.charset = 'utf-8';
+          scriptnode.type = s.type;
+          scriptnode.charset = s.charset;
           scriptnode.innerHTML = s.innerHTML;
+          scriptnode.src = s.src;
           document.body.appendChild(scriptnode);
         });
+        // transfer the contents
+        document.body.innerHTML = fetchedDoc.body.innerHTML;
         callback && callback();
         dogjs.emit('pageload');
       });
