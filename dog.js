@@ -78,6 +78,12 @@
     map.apply(this, arguments);
   };
 
+  // ### Function extensions
+
+  exports.defer = function (f, context) {
+    window.setTimeout(f.bind(context || this), 0);
+  };
+
   // ### Contract-style programming
   //
   // Adding `.assert( .. )` allows for contract-style programming
@@ -104,7 +110,7 @@
     }
   };
 
-  // Send form contents over AJAX.
+  // ### Send form contents over AJAX.
   // Intercepts the `submit` event, and makes the submission manually.
   exports.ajaxify = function (form, options) {
     options = options || {};
