@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+
+  <form listen="tweets" holder="#post">
+    <p><label>Username @<input type="text" name="username" placeholder="zz" required></label></p>
+    <p>
+      <textarea name="status" placeholder="Compose new Tweet..." style="width: 205px; height: 40px"></textarea>
+    </p>
+    <input type="submit" value="post &rarr;">
+  </form>
+
+  <section oneach="@each:tweet" subscribe="true">
+    <section notify="tweet" holder="#stream">
+      <p>@{{ username }} says:</p>
+      <p>{{ status }}</p>
+    </section>
+  </section>
+
+</body>
+</html>
+

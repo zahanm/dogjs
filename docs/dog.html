@@ -481,12 +481,13 @@ so that they are executed</p>             </td>             <td class="code">   
     <span class="nx">pageConfig</span> <span class="o">=</span> <span class="nx">config</span><span class="p">;</span>
 
     <span class="nx">Utilities</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="nx">pageConfig</span><span class="p">[</span><span class="s1">&#39;templates&#39;</span><span class="p">],</span> <span class="s2">&quot;No &#39;templates&#39; file specified.&quot;</span><span class="p">);</span>
-    <span class="nx">Utilities</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="nx">pageConfig</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">],</span> <span class="s2">&quot;No &#39;default&#39; page file specified.&quot;</span><span class="p">);</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">hash</span> <span class="o">&amp;&amp;</span> <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">hash</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">in</span> <span class="nx">pageConfig</span><span class="p">)</span> <span class="p">{</span>
       <span class="nx">loadPageContents</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">hash</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="nx">fetchTemplates</span><span class="p">);</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">pageConfig</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">])</span> <span class="p">{</span>
       <span class="nx">loadPageContents</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="nx">fetchTemplates</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="nx">fetchTemplates</span><span class="p">();</span>
     <span class="p">}</span>
   <span class="p">}</span>
 

@@ -577,12 +577,13 @@
     pageConfig = config;
 
     Utilities.assert(pageConfig['templates'], "No 'templates' file specified.");
-    Utilities.assert(pageConfig['default'], "No 'default' page file specified.");
 
     if (window.location.hash && window.location.hash.substring(1) in pageConfig) {
       loadPageContents(window.location.hash.substring(1), fetchTemplates);
-    } else {
+    } else if (pageConfig['default']) {
       loadPageContents('default', fetchTemplates);
+    } else {
+      fetchTemplates();
     }
   }
 

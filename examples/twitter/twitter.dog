@@ -7,10 +7,6 @@ DEFINE tweet {
   status
 }
 
-DEFINE comment {
-  text
-}
-
 #========================================#
 #                 Main                   #
 #========================================#
@@ -20,29 +16,4 @@ LISTEN TO public VIA http FOR tweets
 ON EACH tweet DO
   PRINT 'tweet: ' + tweet.username + ' => ' + tweet.status
   NOTIFY public VIA stream OF tweet
-
-  LISTEN TO public VIA http FOR comments
-  ON EACH comment DO
-    PRINT 'Hello'
-  END
 END
-
-#========================================#
-#                Scratch                 #
-#========================================#
-#
-# Not sure if the following is supported yet
-#
-# twittersphere = community {
-#     location
-#     avatar
-#     bio
-#     relationship followers, followees
-#     relationship followees, followers
-# }
-#
-# LISTEN TO twittersphere FOR tweets
-#
-# ON EACH tweet DO
-#   NOTIFY tweeter's followers VIA stream, sms OF status
-# END

@@ -5,25 +5,6 @@
 </head>
 <body>
 
-  <dog>
-
-    <form listen="tweets" holder="#post">
-      <p><label>Username @<input type="text" name="username" placeholder="zz" required></label></p>
-      <p>
-        <textarea name="status" placeholder="Compose new Tweet..." style="width: 205px; height: 40px"></textarea>
-      </p>
-      <input type="submit" value="post &rarr;">
-    </form>
-
-    <section oneach="@each:tweet" subscribe="true">
-      <section notify="tweet" holder="#stream">
-        <p>@{{ username }} says:</p>
-        <p>{{ status }}</p>
-      </section>
-    </section>
-
-  </dog>
-
   <div>
     <h2>Twitter</h2>
     <h3>Post</h3>
@@ -35,5 +16,10 @@
   </div>
 
   <script src="/dog.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript" charset="utf-8">
+    dogjs.setupPages({
+      'templates': '/templates.html'
+    });
+  </script>
 </body>
 </html>
