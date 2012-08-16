@@ -159,14 +159,14 @@ Taken from <a href="https://github.com/babelon/lie-to-me/">lie-to-me/lib/defers.
 <span class="cm">    the next .then() will be invoked after</span>
 <span class="cm">    it finishes</span>
 <span class="cm">  */</span>
-  <span class="nx">Promise</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">onward</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">onward</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">Promise</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">resolve</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">resolve</span><span class="p">()</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">next</span><span class="p">,</span> <span class="nx">c</span><span class="p">,</span> <span class="nx">ret</span><span class="p">;</span>
     <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">continuations</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span><span class="p">;</span> <span class="p">}</span>
     <span class="nx">next</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">continuations</span><span class="p">.</span><span class="nx">shift</span><span class="p">();</span>
     <span class="nx">c</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">contexts</span><span class="p">.</span><span class="nx">shift</span><span class="p">();</span>
     <span class="nx">ret</span> <span class="o">=</span> <span class="nx">next</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">c</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">ret</span> <span class="k">instanceof</span> <span class="nx">Promise</span><span class="p">)</span> <span class="p">{</span>
-      <span class="nx">ret</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">onward</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+      <span class="nx">ret</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">resolve</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
     <span class="p">}</span>
   <span class="p">};</span>
 
@@ -535,10 +535,10 @@ so that they are executed</p>             </td>             <td class="code">   
     <span class="nx">req</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/dog/account/status&#39;</span><span class="p">);</span>
     <span class="nx">req</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;success&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">status</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">if</span> <span class="p">(</span><span class="nx">status</span><span class="p">[</span><span class="s2">&quot;success&quot;</span><span class="p">])</span> <span class="p">{</span>
-        <span class="nx">dogjs</span><span class="p">.</span><span class="nx">auth</span> <span class="o">=</span> <span class="nx">status</span><span class="p">[</span><span class="s2">&quot;authentication&quot;</span><span class="p">];</span>
+        <span class="nx">dogjs</span><span class="p">.</span><span class="nx">authentication</span> <span class="o">=</span> <span class="nx">status</span><span class="p">[</span><span class="s2">&quot;authentication&quot;</span><span class="p">];</span>
         <span class="nx">promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
       <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="nx">dogjs</span><span class="p">.</span><span class="nx">auth</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+        <span class="nx">dogjs</span><span class="p">.</span><span class="nx">authentication</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
         <span class="nx">promise</span><span class="p">.</span><span class="nx">abort</span><span class="p">();</span>
       <span class="p">}</span>
     <span class="p">});</span>

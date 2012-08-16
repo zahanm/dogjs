@@ -207,14 +207,14 @@
     the next .then() will be invoked after
     it finishes
   */
-  Promise.prototype.onward = function onward() {
+  Promise.prototype.resolve = function resolve() {
     var next, c, ret;
     if (!this.continuations.length) { return; }
     next = this.continuations.shift();
     c = this.contexts.shift();
     ret = next.apply(c, arguments);
     if (ret instanceof Promise) {
-      ret.then(this.onward, this);
+      ret.then(this.resolve, this);
     }
   };
 
@@ -532,6 +532,7 @@
   }
 
   function fetchTemplates() {
+    var promise = new Promise();
     var req = new Request({ forceHTML: true });
     req.on('success', function (dogblock) {
       Utilities.assert(dogblock, 'Missing templates from ' + pageConfig['templates']);
@@ -577,9 +578,11 @@
         return retvalue;
       });
       subscriber.poll();
+      promise.resolve();
 
     });
     req.get(pageConfig['templates']);
+    return promise;
   }
 
   function changePage(destination) {
@@ -593,7 +596,8 @@
     }
   }
 
-  function loadPageContents(destination, callback) {
+  function loadPageContents(destination) {
+    var promise = new Promise();
     if (destination && destination in pageConfig) {
       var req = new Request({ forceHTML: true });
       req.get(pageConfig[destination]);
@@ -616,12 +620,30 @@
         });
         // transfer the contents
         document.body.innerHTML = fetchedDoc.body.innerHTML;
-        callback && callback();
         dogjs.emit('pageload');
+        promise.resolve();
       });
     } else {
       console.error('Invalid page contents to load: ' + destination);
+      promise.abort();
     }
+    return promise;
+  }
+
+  function authenticationCheck() {
+    var promise = new Promise();
+    var req = new Request();
+    req.get('/dog/account/status');
+    req.on('success', function (status) {
+      if (status["success"]) {
+        dogjs.authentication = status["authentication"];
+        promise.resolve();
+      } else {
+        dogjs.authentication = false;
+        promise.abort();
+      }
+    });
+    return promise;
   }
 
   function setupPages(config) {
@@ -629,13 +651,18 @@
 
     Utilities.assert(pageConfig['templates'], "No 'templates' file specified.");
 
-    if (window.location.hash && window.location.hash.substring(1) in pageConfig) {
-      loadPageContents(window.location.hash.substring(1), fetchTemplates);
+    var control, hashname
+    control = authenticationCheck();
+    hashname = window.location.hash && window.location.hash.substring(1);
+    if (hashname && (hashname in pageConfig)) {
+      control.then(loadPageContents.bind(this, hashname));
     } else if (pageConfig['default']) {
-      loadPageContents('default', fetchTemplates);
-    } else {
-      fetchTemplates();
+      control.then(loadPageContents.bind(this, 'default'));
     }
+    control.then(fetchTemplates);
+    control.instead(function () {
+      console.error('Startup error: ', arguments);
+    });
   }
 
   exports.dogjs = dogjs;
