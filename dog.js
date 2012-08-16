@@ -175,6 +175,46 @@
 
 }(window));
 
+// ## Promise
+//
+// Using for cleaner asynchronous programming.
+// Uses EventEmitter under the scenes.
+//
+(function (exports) {
+
+  function Promise() {
+    this.__super__.constructor.call(this);
+  }
+
+  // inherit from EventEmitter
+  Promise.prototype = new EventEmitter();
+  Promise.prototype.constructor = Promise;
+  Promise.prototype.__super__ = EventEmitter.prototype;
+
+  Promise.prototype.then = function (continuation) {
+    this.on('success', continuation);
+    return this;
+  };
+
+  Promise.prototype.instead = function (errorhandler) {
+    this.on('error', errorhandler);
+    return this;
+  };
+
+  Promise.prototype.resolve = function () {
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift('success');
+    this.emit.apply(this, args);
+  }
+
+  Promise.prototype.abort = function () {
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift('error');
+    this.emit.apply(this, args);
+  }
+
+}(window));
+
 // ## Request
 //
 // Request is a simplification of AJAX requests made through `XMLHttpRequest`
@@ -274,7 +314,11 @@
 
 }(window));
 
-// Subscribers
+// ## Subscribers
+//
+// Handling the subscriptions, using just polling for now.
+// Planned addition of websockets.
+//
 (function (exports) {
   'use strict';
 
