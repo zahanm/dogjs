@@ -410,6 +410,9 @@
 
   function sourcetotarget(sourcenode, item) {
     var targetnode, newnode, method, view;
+    if(!dogjs.authentication && sourcenode.attributes['authenticated'] && sourcenode.attributes['authenticated'].value.match(/true/i)) {
+      return null;
+    }
     Utilities.assert(sourcenode.attributes['holder'], 'No holder for source element');
     targetnode = document.querySelector( sourcenode.attributes['holder'].value );
     if (!targetnode) { console.info('Invalid target for holder:', sourcenode.attributes['holder'].value); return; }
@@ -432,7 +435,7 @@
       break;
       case 'fill':
       if (Utilities.trim(targetnode.innerHTML)) {
-        return;
+        return null;
       }
       case 'overwrite':
       // clean out `targetnode`
@@ -560,6 +563,20 @@
           notifys[ elem.attributes['notify'].value ] = elem;
         } else if (elem.attributes['oneach']) {
           oneachs[ elem.attributes['oneach'].value ] = elem;
+        }
+      });
+      elems = dogblock.querySelectorAll( dogjs.authentication ? '.authenticated' : '.unauthed' );
+      Array.prototype.forEach.call(elems, function (elem) {
+        var target = sourcetotarget(elem, { id: '', type: 'authentication' });
+        if (target) {
+          var provider = target.attributes['provider'] ? ('/' + target.attributes['provider'].value) : '';
+          target.addEventListener('click', function () {
+            if (dogjs.authentication) {
+              window.location = '/dog/account/logout';
+            } else {
+              window.location = '/dog/account' + provider + '/login';
+            }
+          });
         }
       });
 
