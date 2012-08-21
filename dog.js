@@ -410,7 +410,7 @@
 
   function sourcetotarget(sourcenode, item) {
     var targetnode, newnode, method, view;
-    if(!dogjs.authentication && sourcenode.attributes['authenticated'] && sourcenode.attributes['authenticated'].value.match(/true/i)) {
+    if(!dogjs.auth && sourcenode.attributes['authenticated'] && sourcenode.attributes['authenticated'].value.match(/true/i)) {
       return null;
     }
     Utilities.assert(sourcenode.attributes['holder'], 'No holder for source element');
@@ -535,8 +535,10 @@
   }
 
   function fetchTemplates() {
-    var promise = new Promise();
-    var req = new Request({ forceHTML: true });
+    var promise, req, templateslocation;
+    promise = new Promise();
+    req = new Request({ forceHTML: true });
+    templateslocation = pageConfig['templates'] || '/templates.html';
     req.on('success', function (dogblock) {
       Utilities.assert(dogblock, 'Missing templates from ' + pageConfig['templates']);
 
@@ -565,13 +567,13 @@
           oneachs[ elem.attributes['oneach'].value ] = elem;
         }
       });
-      elems = dogblock.querySelectorAll( dogjs.authentication ? '.authenticated' : '.unauthed' );
+      elems = dogblock.querySelectorAll( dogjs.auth ? '.authenticated' : '.unauthed' );
       Array.prototype.forEach.call(elems, function (elem) {
         var target = sourcetotarget(elem, { id: '', type: 'authentication' });
         if (target) {
           var provider = target.attributes['provider'] ? ('/' + target.attributes['provider'].value) : '';
           target.addEventListener('click', function () {
-            if (dogjs.authentication) {
+            if (dogjs.auth) {
               window.location = '/dog/account/logout';
             } else {
               window.location = '/dog/account' + provider + '/login';
@@ -598,19 +600,8 @@
       promise.resolve();
 
     });
-    req.get(pageConfig['templates']);
+    req.get(templateslocation);
     return promise;
-  }
-
-  function changePage(destination) {
-    // FIXME should not have to do this reload hack
-    if (destination && destination in pageConfig) {
-      window.location.hash = '#' + destination;
-      window.location.reload();
-    } else {
-      console.error("'" + destination + "' is not a valid page name.");
-      ('default' in pageConfig) && changePage('default');
-    }
   }
 
   function loadPageContents(destination) {
@@ -647,16 +638,27 @@
     return promise;
   }
 
+  function changePage(destination) {
+    // FIXME should not have to do this reload hack
+    if (destination && destination in pageConfig) {
+      window.location.hash = '#' + destination;
+      window.location.reload();
+    } else {
+      console.error("'" + destination + "' is not a valid page name.");
+      ('default' in pageConfig) && changePage('default');
+    }
+  }
+
   function authenticationCheck() {
     var promise = new Promise();
     var req = new Request();
     req.get('/dog/account/status');
     req.on('success', function (status) {
       if (status["success"]) {
-        dogjs.authentication = status["authentication"];
+        dogjs.auth = status["authentication"];
         promise.resolve();
       } else {
-        dogjs.authentication = false;
+        dogjs.auth = false;
         promise.abort();
       }
     });
@@ -665,18 +667,20 @@
 
   function setupPages(config) {
     pageConfig = config;
+  }
 
-    Utilities.assert(pageConfig['templates'], "No 'templates' file specified.");
+  function initialize() {
+    // need a configuration
+    pageConfig = pageConfig || {};
 
     var control, hashname
     control = authenticationCheck();
-    hashname = window.location.hash && window.location.hash.substring(1);
-    if (hashname && (hashname in pageConfig)) {
-      control.then(loadPageContents.bind(this, hashname));
-    } else if (pageConfig['default']) {
-      control.then(loadPageContents.bind(this, 'default'));
-    }
     control.then(fetchTemplates);
+    if (window.location.hash) {
+      control.then(loadPageContents.bind(this, window.location.hash.substring(1)));
+    } else {
+      control.then(loadPageContents.bind(this, 'home'));
+    }
     control.instead(function () {
       console.error('Startup error: ', arguments);
     });
@@ -685,5 +689,7 @@
   exports.dogjs = dogjs;
   dogjs.setupPages = setupPages;
   dogjs.changePage = changePage;
+
+  document.addEventListener('DOMContentLoaded', initialize);
 
 }(window));
