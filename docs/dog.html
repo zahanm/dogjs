@@ -566,6 +566,10 @@ so that they are executed</p>             </td>             <td class="code">   
         <span class="nx">promise</span><span class="p">.</span><span class="nx">abort</span><span class="p">();</span>
       <span class="p">}</span>
     <span class="p">});</span>
+    <span class="nx">req</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+      <span class="nx">dogjs</span><span class="p">.</span><span class="nx">auth</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+      <span class="nx">promise</span><span class="p">.</span><span class="nx">abort</span><span class="p">();</span>
+    <span class="p">});</span>
     <span class="k">return</span> <span class="nx">promise</span><span class="p">;</span>
   <span class="p">}</span>
 

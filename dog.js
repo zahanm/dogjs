@@ -667,6 +667,10 @@
         promise.abort();
       }
     });
+    req.on('error', function () {
+      dogjs.auth = false;
+      promise.abort();
+    });
     return promise;
   }
 
