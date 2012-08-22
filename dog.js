@@ -604,13 +604,15 @@
     return promise;
   }
 
-  function loadPageContents(destination) {
-    var promise = new Promise();
-    if (destination && destination in pageConfig) {
+  function loadPageContents(ev) {
+    var promise, hashname, source;
+    promise = new Promise();
+    hashname = window.location.hash.substring(1);
+    source = pageConfig[hashname] || ('/' + hashname + '.html');
+    if (source) {
       var req = new Request({ forceHTML: true });
-      req.get(pageConfig[destination]);
+      req.get(source);
       req.on('success', function (fetchedDoc) {
-        window.location.hash = '#' + destination;
         // need to append scripts to body separately
         // so that they are executed
         var scripts = fetchedDoc.getElementsByTagName('script');
@@ -631,6 +633,10 @@
         dogjs.emit('pageload');
         promise.resolve();
       });
+      req.on('error', function () {
+        dogjs.emit('pageload');
+        promise.resolve();
+      })
     } else {
       console.error('Invalid page contents to load: ' + destination);
       promise.abort();
@@ -639,13 +645,12 @@
   }
 
   function changePage(destination) {
-    // FIXME should not have to do this reload hack
-    if (destination && destination in pageConfig) {
+    // TODO destination in pageConfig ?
+    if (destination) {
       window.location.hash = '#' + destination;
-      window.location.reload();
     } else {
       console.error("'" + destination + "' is not a valid page name.");
-      ('default' in pageConfig) && changePage('default');
+      ('home' in pageConfig) && changePage('home');
     }
   }
 
@@ -673,17 +678,21 @@
     // need a configuration
     pageConfig = pageConfig || {};
 
-    var control, hashname
-    control = authenticationCheck();
+    var control = authenticationCheck();
     control.then(fetchTemplates);
-    if (window.location.hash) {
-      control.then(loadPageContents.bind(this, window.location.hash.substring(1)));
-    } else {
-      control.then(loadPageContents.bind(this, 'home'));
-    }
+    control.then(function () {
+      // rely on the 'hashchange' event listener to do its work
+      if (window.location.hash) {
+        var ev = new HashChangeEvent('hashchange', { oldURL: window.location.href, newURL: window.location.href });
+        window.dispatchEvent(ev);
+      } else {
+        window.location.hash = '#' + 'home';
+      }
+    });
     control.instead(function () {
       console.error('Startup error: ', arguments);
     });
+    window.addEventListener('hashchange', loadPageContents);
   }
 
   exports.dogjs = dogjs;
