@@ -271,13 +271,14 @@
     } else {
       console.log('Successful request with non-2XX status.');
       console.log(req.xhp);
+      req.emit('error', req.xhp.statusText);
     }
   }
 
   function errored(req) {
-    req.emit('error', req.xhp.statusText);
     console.log('Unsuccessful request.');
     console.log(req.xhp);
+    req.emit('error', req.xhp.statusText);
   }
 
   function Request(options) {
@@ -335,7 +336,7 @@
     if (endpoint in pollendpoints) {
       throw new Error("Already subscribed to " + endpoint + " stream.");
     } else {
-      pollendpoints[ endpoint ] = true;
+      pollendpoints[ endpoint ] = this;
     }
     this.__super__.constructor.call(this);
     this.endpoint = endpoint;
@@ -357,13 +358,24 @@
       // FIXME if (this.lastpolled) { options['after'] = this.lastpolled.toISOString() }
       req.on('success', function (data) {
         var retvalues = this.emit('poll', data);
-        if ( !retvalues.reduce(function (l, r) { return l && r; }) ) { this.open = false; }
+        if ( !retvalues.reduce(function (l, r) { return l && r; }) ) { this.close(); }
       }, this);
       req.get(this.endpoint, options);
       this.lastpolled = new Date();
       this.count++;
       setTimeout(this.poll.bind(this), this.interval);
     }
+  };
+
+  Poller.prototype.close = function () {
+    this.open = false;
+  };
+
+  Poller.closeAll = function () {
+    Utilities.forEach(pollendpoints, function (p, endpoint) {
+      p.close();
+    });
+    pollendpoints = {};
   };
 
   exports.Poller = Poller;
@@ -549,9 +561,8 @@
 
       // Scan for Dog tags in the templates section
       // ------------------------------------------
-      var elems, subscriber;
 
-      elems = dogblock.getElementsByTagName('form');
+      var elems = dogblock.getElementsByTagName('form');
       Array.prototype.forEach.call(elems, function (elem) {
         if (elem.attributes['ask']) {
           asks[ elem.attributes['ask'].value ] = elem;
@@ -582,21 +593,6 @@
         }
       });
 
-      // Setup polling
-      // -------------
-
-      // root stream
-      var loaded = false;
-      subscriber = new Poller('/dog/stream/runtime/root', pollinterval, pollcount);
-      subscriber.on('poll', function () {
-        var retvalue = onpoll.apply(this, arguments);
-        if (!loaded) {
-          dogjs.emit('load');
-          loaded = true;
-        }
-        return retvalue;
-      });
-      subscriber.poll();
       promise.resolve();
 
     });
@@ -604,9 +600,28 @@
     return promise;
   }
 
+  function startTrackPolling() {
+    // Setup polling
+    // -------------
+
+    // root stream
+    var loaded = false;
+    var subscriber = new Poller('/dog/stream/runtime/root', pollinterval, pollcount);
+    subscriber.on('poll', function () {
+      var retvalue = onpoll.apply(this, arguments);
+      if (!loaded) {
+        dogjs.emit('load');
+        loaded = true;
+      }
+      return retvalue;
+    });
+    subscriber.poll();
+  }
+
   function loadPageContents(ev) {
     var promise, hashname, source;
     promise = new Promise();
+    Poller.closeAll();
     hashname = window.location.hash.substring(1);
     source = pageConfig[hashname] || ('/' + hashname + '.html');
     if (source) {
@@ -630,10 +645,12 @@
         });
         // transfer the contents
         document.body.innerHTML = fetchedDoc.body.innerHTML;
+        startTrackPolling();
         dogjs.emit('pageload');
         promise.resolve();
       });
       req.on('error', function () {
+        startTrackPolling();
         dogjs.emit('pageload');
         promise.resolve();
       })

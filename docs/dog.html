@@ -220,13 +220,14 @@ request.get('http://jabber.wocky.org/dog/', { query: .. });
     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
       <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Successful request with non-2XX status.&#39;</span><span class="p">);</span>
       <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">xhp</span><span class="p">);</span>
+      <span class="nx">req</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">statusText</span><span class="p">);</span>
     <span class="p">}</span>
   <span class="p">}</span>
 
   <span class="kd">function</span> <span class="nx">errored</span><span class="p">(</span><span class="nx">req</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">req</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">statusText</span><span class="p">);</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Unsuccessful request.&#39;</span><span class="p">);</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">xhp</span><span class="p">);</span>
+    <span class="nx">req</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">xhp</span><span class="p">.</span><span class="nx">statusText</span><span class="p">);</span>
   <span class="p">}</span>
 
   <span class="kd">function</span> <span class="nx">Request</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <p>Call parent constructor</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">this</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">constructor</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
@@ -273,7 +274,7 @@ Planned addition of websockets.</p>             </td>             <td class="cod
     <span class="k">if</span> <span class="p">(</span><span class="nx">endpoint</span> <span class="k">in</span> <span class="nx">pollendpoints</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;Already subscribed to &quot;</span> <span class="o">+</span> <span class="nx">endpoint</span> <span class="o">+</span> <span class="s2">&quot; stream.&quot;</span><span class="p">);</span>
     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-      <span class="nx">pollendpoints</span><span class="p">[</span> <span class="nx">endpoint</span> <span class="p">]</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+      <span class="nx">pollendpoints</span><span class="p">[</span> <span class="nx">endpoint</span> <span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
     <span class="p">}</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">constructor</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">endpoint</span> <span class="o">=</span> <span class="nx">endpoint</span><span class="p">;</span>
@@ -293,13 +294,24 @@ Planned addition of websockets.</p>             </td>             <td class="cod
       <span class="kd">var</span> <span class="nx">req</span><span class="p">,</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{};</span>
       <span class="nx">req</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Request</span><span class="p">();</span></pre></div>             </td>           </tr>                               <tr id="section-22">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-22">&#182;</a>               </div>               <p>FIXME if (this.lastpolled) { options['after'] = this.lastpolled.toISOString() }</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nx">req</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;success&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
         <span class="kd">var</span> <span class="nx">retvalues</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;poll&#39;</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
-        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nx">retvalues</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">l</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">l</span> <span class="o">&amp;&amp;</span> <span class="nx">r</span><span class="p">;</span> <span class="p">})</span> <span class="p">)</span> <span class="p">{</span> <span class="k">this</span><span class="p">.</span><span class="nx">open</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span> <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nx">retvalues</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">l</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">l</span> <span class="o">&amp;&amp;</span> <span class="nx">r</span><span class="p">;</span> <span class="p">})</span> <span class="p">)</span> <span class="p">{</span> <span class="k">this</span><span class="p">.</span><span class="nx">close</span><span class="p">();</span> <span class="p">}</span>
       <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
       <span class="nx">req</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">endpoint</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
       <span class="k">this</span><span class="p">.</span><span class="nx">lastpolled</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
       <span class="k">this</span><span class="p">.</span><span class="nx">count</span><span class="o">++</span><span class="p">;</span>
       <span class="nx">setTimeout</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">poll</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">),</span> <span class="k">this</span><span class="p">.</span><span class="nx">interval</span><span class="p">);</span>
     <span class="p">}</span>
+  <span class="p">};</span>
+
+  <span class="nx">Poller</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">close</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">open</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="nx">Poller</span><span class="p">.</span><span class="nx">closeAll</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">Utilities</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">pollendpoints</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">p</span><span class="p">,</span> <span class="nx">endpoint</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">p</span><span class="p">.</span><span class="nx">close</span><span class="p">();</span>
+    <span class="p">});</span>
+    <span class="nx">pollendpoints</span> <span class="o">=</span> <span class="p">{};</span>
   <span class="p">};</span>
 
   <span class="nx">exports</span><span class="p">.</span><span class="nx">Poller</span> <span class="o">=</span> <span class="nx">Poller</span><span class="p">;</span>
@@ -462,9 +474,7 @@ Planned addition of websockets.</p>             </td>             <td class="cod
       <span class="nx">asks</span> <span class="o">=</span> <span class="p">{},</span>
       <span class="nx">oneachs</span> <span class="o">=</span> <span class="p">{},</span>
       <span class="nx">listens</span> <span class="o">=</span> <span class="p">{},</span>
-      <span class="nx">notifys</span> <span class="o">=</span> <span class="p">{};</span></pre></div>             </td>           </tr>                               <tr id="section-31">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-31">&#182;</a>               </div>               <h2>Scan for Dog tags in the templates section</h2>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="kd">var</span> <span class="nx">elems</span><span class="p">,</span> <span class="nx">subscriber</span><span class="p">;</span>
-
-      <span class="nx">elems</span> <span class="o">=</span> <span class="nx">dogblock</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">&#39;form&#39;</span><span class="p">);</span>
+      <span class="nx">notifys</span> <span class="o">=</span> <span class="p">{};</span></pre></div>             </td>           </tr>                               <tr id="section-31">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-31">&#182;</a>               </div>               <h2>Scan for Dog tags in the templates section</h2>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="kd">var</span> <span class="nx">elems</span> <span class="o">=</span> <span class="nx">dogblock</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">&#39;form&#39;</span><span class="p">);</span>
       <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">forEach</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">elems</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">elem</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">if</span> <span class="p">(</span><span class="nx">elem</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;ask&#39;</span><span class="p">])</span> <span class="p">{</span>
           <span class="nx">asks</span><span class="p">[</span> <span class="nx">elem</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;ask&#39;</span><span class="p">].</span><span class="nx">value</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">elem</span><span class="p">;</span>
@@ -493,17 +503,8 @@ Planned addition of websockets.</p>             </td>             <td class="cod
             <span class="p">}</span>
           <span class="p">});</span>
         <span class="p">}</span>
-      <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-32">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-32">&#182;</a>               </div>               <h2>Setup polling</h2>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-33">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-33">&#182;</a>               </div>               <p>root stream</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="kd">var</span> <span class="nx">loaded</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
-      <span class="nx">subscriber</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Poller</span><span class="p">(</span><span class="s1">&#39;/dog/stream/runtime/root&#39;</span><span class="p">,</span> <span class="nx">pollinterval</span><span class="p">,</span> <span class="nx">pollcount</span><span class="p">);</span>
-      <span class="nx">subscriber</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;poll&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">retvalue</span> <span class="o">=</span> <span class="nx">onpoll</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
-        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">loaded</span><span class="p">)</span> <span class="p">{</span>
-          <span class="nx">dogjs</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;load&#39;</span><span class="p">);</span>
-          <span class="nx">loaded</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
-        <span class="p">}</span>
-        <span class="k">return</span> <span class="nx">retvalue</span><span class="p">;</span>
       <span class="p">});</span>
-      <span class="nx">subscriber</span><span class="p">.</span><span class="nx">poll</span><span class="p">();</span>
+
       <span class="nx">promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
 
     <span class="p">});</span>
@@ -511,9 +512,23 @@ Planned addition of websockets.</p>             </td>             <td class="cod
     <span class="k">return</span> <span class="nx">promise</span><span class="p">;</span>
   <span class="p">}</span>
 
+  <span class="kd">function</span> <span class="nx">startTrackPolling</span><span class="p">()</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-32">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-32">&#182;</a>               </div>               <h2>Setup polling</h2>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-33">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-33">&#182;</a>               </div>               <p>root stream</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="kd">var</span> <span class="nx">loaded</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">subscriber</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Poller</span><span class="p">(</span><span class="s1">&#39;/dog/stream/runtime/root&#39;</span><span class="p">,</span> <span class="nx">pollinterval</span><span class="p">,</span> <span class="nx">pollcount</span><span class="p">);</span>
+    <span class="nx">subscriber</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;poll&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">retvalue</span> <span class="o">=</span> <span class="nx">onpoll</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">loaded</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">dogjs</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;load&#39;</span><span class="p">);</span>
+        <span class="nx">loaded</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">return</span> <span class="nx">retvalue</span><span class="p">;</span>
+    <span class="p">});</span>
+    <span class="nx">subscriber</span><span class="p">.</span><span class="nx">poll</span><span class="p">();</span>
+  <span class="p">}</span>
+
   <span class="kd">function</span> <span class="nx">loadPageContents</span><span class="p">(</span><span class="nx">ev</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">promise</span><span class="p">,</span> <span class="nx">hashname</span><span class="p">,</span> <span class="nx">source</span><span class="p">;</span>
     <span class="nx">promise</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">();</span>
+    <span class="nx">Poller</span><span class="p">.</span><span class="nx">closeAll</span><span class="p">();</span>
     <span class="nx">hashname</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">hash</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
     <span class="nx">source</span> <span class="o">=</span> <span class="nx">pageConfig</span><span class="p">[</span><span class="nx">hashname</span><span class="p">]</span> <span class="o">||</span> <span class="p">(</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nx">hashname</span> <span class="o">+</span> <span class="s1">&#39;.html&#39;</span><span class="p">);</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">source</span><span class="p">)</span> <span class="p">{</span>
@@ -531,10 +546,12 @@ so that they are executed</p>             </td>             <td class="code">   
           <span class="nx">scriptnode</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">src</span><span class="p">;</span>
           <span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">scriptnode</span><span class="p">);</span>
         <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-36">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-36">&#182;</a>               </div>               <p>transfer the contents</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nx">fetchedDoc</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">;</span>
+        <span class="nx">startTrackPolling</span><span class="p">();</span>
         <span class="nx">dogjs</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;pageload&#39;</span><span class="p">);</span>
         <span class="nx">promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
       <span class="p">});</span>
       <span class="nx">req</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="nx">startTrackPolling</span><span class="p">();</span>
         <span class="nx">dogjs</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;pageload&#39;</span><span class="p">);</span>
         <span class="nx">promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
       <span class="p">})</span>
