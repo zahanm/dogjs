@@ -621,7 +621,10 @@
   function loadPageContents(ev) {
     var promise, hashname, source;
     promise = new Promise();
+    // start from scratch
+    streamobjectseen = {};
     Poller.closeAll();
+    // page to fetch
     hashname = window.location.hash.substring(1);
     source = pageConfig[hashname] || ('/' + hashname + '.html');
     if (source) {
