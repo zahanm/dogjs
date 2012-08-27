@@ -105,6 +105,18 @@ Same as overwrite, except only triggered when it's the same object
 #### fill
 Currently called `replace`, only fill in if holder node is empty
 
+### Configuration
+Can be initialized with
+
+    <script type="text/javascript">
+      dogjs.configure({
+        'base': 'http://server.dog-lang.org/dog/'
+      });
+    </script>
+
+Where `base` is the url optional argument (ending in a `/`) that specifies
+the dog API endpoint to use.
+
 ### Pagination
 We can work on different pages, emulated by `dogjs`.
 

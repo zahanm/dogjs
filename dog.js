@@ -391,7 +391,7 @@
 
   // `dogjs` is an augmented EventEmitter instance
   var dogjs = new EventEmitter(),
-    pageConfig = null,
+    dogconfig = null,
     asks, notifys, listens, oneachs, streamobjectseen = {};
 
   var pollinterval, pollcount;
@@ -422,7 +422,7 @@
 
   function sourcetotarget(sourcenode, item) {
     var targetnode, newnode, method, view;
-    if(!dogjs.auth && sourcenode.attributes['authenticated'] && sourcenode.attributes['authenticated'].value.match(/true/i)) {
+    if(!dogconfig.auth && sourcenode.attributes['authenticated'] && sourcenode.attributes['authenticated'].value.match(/true/i)) {
       return null;
     }
     Utilities.assert(sourcenode.attributes['holder'], 'No holder for source element');
@@ -483,7 +483,7 @@
       newnode = sourcetotarget( sourcenode, item );
       if (newnode) {
         newnode.method = 'post';
-        newnode.action = '/dog/stream/object/' + item.id;
+        newnode.action = dogconfig.base + '/stream/object/' + item.id;
         // use AJAX for `form` submission
         Utilities.ajaxify(newnode);
         newnode.addEventListener('submitted', function (ev) {
@@ -500,7 +500,7 @@
       break;
       // case 'Dog::Track'
       case 'track':
-      var subscriber = new Poller('/dog/stream/runtime/' + item.id);
+      var subscriber = new Poller(dogconfig.base + '/stream/runtime/' + item.id);
       subscriber.on('poll', onpoll);
       subscriber.poll();
       break;
@@ -509,7 +509,7 @@
       if (!sourcenode) { return; } // 'No oneach template for item'
       sourcenode.dataset['id'] = item['id'];
       if (sourcenode.attributes['subscribe'] && sourcenode.attributes['subscribe'].value.match(/true/i)) {
-        var subscriber = new Poller('/dog/stream/lexical/' + item.id, pollinterval, pollcount);
+        var subscriber = new Poller(dogconfig.base + '/stream/lexical/' + item.id, pollinterval, pollcount);
         subscriber.on('poll', onpoll);
         subscriber.poll();
       }
@@ -550,9 +550,9 @@
     var promise, req, templateslocation;
     promise = new Promise();
     req = new Request({ forceHTML: true });
-    templateslocation = pageConfig['templates'] || '/templates.html';
+    templateslocation = dogconfig.templates || '/templates.html';
     req.on('success', function (dogblock) {
-      Utilities.assert(dogblock, 'Missing templates from ' + pageConfig['templates']);
+      Utilities.assert(dogblock, 'Missing templates from ' + dogconfig['templates']);
 
       asks = {},
       oneachs = {},
@@ -578,16 +578,16 @@
           oneachs[ elem.attributes['oneach'].value ] = elem;
         }
       });
-      elems = dogblock.querySelectorAll( dogjs.auth ? '.authenticated' : '.unauthed' );
+      elems = dogblock.querySelectorAll( dogconfig.auth ? '.authenticated' : '.unauthed' );
       Array.prototype.forEach.call(elems, function (elem) {
         var target = sourcetotarget(elem, { id: '', type: 'authentication' });
         if (target) {
           var provider = target.attributes['provider'] ? ('/' + target.attributes['provider'].value) : '';
           target.addEventListener('click', function () {
-            if (dogjs.auth) {
-              window.location = '/dog/account/logout';
+            if (dogconfig.auth) {
+              window.location = dogconfig.base + '/account/logout';
             } else {
-              window.location = '/dog/account' + provider + '/login';
+              window.location = dogconfig.base + '/account' + provider + '/login';
             }
           });
         }
@@ -606,11 +606,11 @@
 
     // root stream
     var loaded = false;
-    var subscriber = new Poller('/dog/stream/runtime/root', pollinterval, pollcount);
+    var subscriber = new Poller(dogconfig.base + '/stream/runtime/root', pollinterval, pollcount);
     subscriber.on('poll', function () {
       var retvalue = onpoll.apply(this, arguments);
       if (!loaded) {
-        dogjs.emit('load');
+        dogjs.emit('pageload');
         loaded = true;
       }
       return retvalue;
@@ -626,7 +626,7 @@
     Poller.closeAll();
     // page to fetch
     hashname = window.location.hash.substring(1);
-    source = pageConfig[hashname] || ('/' + hashname + '.html');
+    source = dogconfig[hashname] || ('/' + hashname + '.html');
     if (source) {
       var req = new Request({ forceHTML: true });
       req.get(source);
@@ -664,64 +664,47 @@
     return promise;
   }
 
-  function changePage(destination) {
-    // TODO destination in pageConfig ?
-    if (destination) {
-      window.location.hash = '#' + destination;
-    } else {
-      console.error("'" + destination + "' is not a valid page name.");
-      ('home' in pageConfig) && changePage('home');
-    }
-  }
-
   function authenticationCheck() {
     var promise = new Promise();
     var req = new Request();
-    req.get('/dog/account/status');
+    req.get(dogconfig.base + '/account/status');
     req.on('success', function (status) {
       if (status["success"]) {
-        dogjs.auth = status["authentication"];
+        dogconfig.auth = status["authentication"];
         promise.resolve();
       } else {
-        dogjs.auth = false;
+        dogconfig.auth = false;
         promise.abort();
       }
     });
     req.on('error', function () {
-      dogjs.auth = false;
+      dogconfig.auth = false;
       promise.abort();
     });
     return promise;
   }
 
-  function setupPages(config) {
-    pageConfig = config;
+  function configure(config) {
+    dogconfig = config || {};
+    dogconfig.base = dogconfig.base || '/dog';
+    dogconfig.auth = false;
+    return dogconfig;
   }
 
   function initialize() {
-    // need a configuration
-    pageConfig = pageConfig || {};
+    // need a configuration, defaults
+    dogconfig = dogconfig || configure();
 
     var control = authenticationCheck();
     control.then(fetchTemplates);
-    control.then(function () {
-      // rely on the 'hashchange' event listener to do its work
-      if (window.location.hash) {
-        var ev = new HashChangeEvent('hashchange', { oldURL: window.location.href, newURL: window.location.href });
-        window.dispatchEvent(ev);
-      } else {
-        window.location.hash = '#' + 'home';
-      }
-    });
+    control.then(startTrackPolling);
     control.instead(function () {
       console.error('Startup error: ', arguments);
     });
-    window.addEventListener('hashchange', loadPageContents);
   }
 
   exports.dogjs = dogjs;
-  dogjs.setupPages = setupPages;
-  dogjs.changePage = changePage;
+  dogjs.configure = configure;
 
   document.addEventListener('DOMContentLoaded', initialize);
 
