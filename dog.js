@@ -560,7 +560,6 @@
       notifys = {};
 
       // Scan for Dog tags in the templates section
-      // ------------------------------------------
 
       var elems = dogblock.getElementsByTagName('form');
       Array.prototype.forEach.call(elems, function (elem) {
@@ -600,10 +599,15 @@
     return promise;
   }
 
-  function startTrackPolling() {
-    // Setup polling
-    // -------------
+  // Setup polling
+  // -------------
 
+  function startTrackPolling(restart) {
+    if (restart) {
+      // start from scratch
+      streamobjectseen = {};
+      Poller.closeAll();
+    }
     // root stream
     var loaded = false;
     var subscriber = new Poller(dogconfig.base + '/stream/runtime/root', pollinterval, pollcount);
@@ -616,52 +620,6 @@
       return retvalue;
     });
     subscriber.poll();
-  }
-
-  function loadPageContents(ev) {
-    var promise, hashname, source;
-    promise = new Promise();
-    // start from scratch
-    streamobjectseen = {};
-    Poller.closeAll();
-    // page to fetch
-    hashname = window.location.hash.substring(1);
-    source = dogconfig[hashname] || ('/' + hashname + '.html');
-    if (source) {
-      var req = new Request({ forceHTML: true });
-      req.get(source);
-      req.on('success', function (fetchedDoc) {
-        // need to append scripts to body separately
-        // so that they are executed
-        var scripts = fetchedDoc.getElementsByTagName('script');
-        scripts = Array.prototype.map.call(scripts, function (s) {
-          return s.parentNode.removeChild(s);
-        });
-        // append the scripts
-        Array.prototype.forEach.call(scripts, function (s) {
-          var scriptnode = document.createElement('script');
-          scriptnode.type = s.type;
-          scriptnode.charset = s.charset;
-          scriptnode.innerHTML = s.innerHTML;
-          scriptnode.src = s.src;
-          document.body.appendChild(scriptnode);
-        });
-        // transfer the contents
-        document.body.innerHTML = fetchedDoc.body.innerHTML;
-        startTrackPolling();
-        dogjs.emit('pageload');
-        promise.resolve();
-      });
-      req.on('error', function () {
-        startTrackPolling();
-        dogjs.emit('pageload');
-        promise.resolve();
-      })
-    } else {
-      console.error('Invalid page contents to load: ' + destination);
-      promise.abort();
-    }
-    return promise;
   }
 
   function authenticationCheck() {
