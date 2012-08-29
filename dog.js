@@ -530,12 +530,10 @@
         types = ['ask', 'listen', 'notify'];
         break;
         case 'listening':
-        types = ['listen', 'notify'];
-        unsubscribe = true;
-        break;
         case 'closed':
         default:
-        types = ['notify'];
+        types = ['listen', 'notify']; // TODO 'listening' state is invalid
+        // types = ['notify'];
         unsubscribe = true;
       }
     } else {
