@@ -420,8 +420,22 @@
     return bag;
   }
 
+  function renderDogTemplate(template, context) {
+    if (Utilities.isEmpty(context)) { return template; }
+    // TODO #### Deviations from Mustache.js
+    // - Apostrophe for property access
+    //
+    //     {{ person's name }}
+    //
+    // - Community profiles
+    //
+    //     {{ #facebook_profile }} {{ person's profile_pic }} {{ /facebook_profile }}
+    //
+    return Mustache.render(template, context);
+  }
+
   function sourcetotarget(sourcenode, item) {
-    var targetnode, newnode, method, view;
+    var targetnode, newnode, method;
     if(!dogconfig.auth && sourcenode.attributes['authenticated'] && sourcenode.attributes['authenticated'].value.match(/true/i)) {
       return null;
     }
@@ -430,12 +444,7 @@
     if (!targetnode) { console.info('Invalid target for holder:', sourcenode.attributes['holder'].value); return; }
     method = targetnode.attributes['method'] && targetnode.attributes['method'].value || 'fill';
     newnode = sourcenode.cloneNode(true);
-    view = extractview(item);
-    if (!Utilities.isEmpty(view)) {
-      newnode.innerHTML = Mustache.render(sourcenode.innerHTML, view);
-    } else {
-      newnode.innerHTML = sourcenode.innerHTML;
-    }
+    newnode.innerHTML = renderDogTemplate(sourcenode.innerHTML, extractview(item));
     newnode.dataset['id'] = item['id'];
     newnode.dataset['type'] = item['type'];
     switch(method) {
