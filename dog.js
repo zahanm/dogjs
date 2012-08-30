@@ -566,37 +566,22 @@
       listens = {},
       notifys = {};
 
-      // Scan for Dog tags in the templates section
-
-      var elems = dogblock.getElementsByTagName('form');
+      // Scan for Dog tags among the templates
+      var elems = dogblock.querySelectorAll('*[ask]');
       Array.prototype.forEach.call(elems, function (elem) {
-        if (elem.attributes['ask']) {
-          asks[ elem.attributes['ask'].value ] = elem;
-        } else if (elem.attributes['listen']) {
-          listens[ elem.attributes['listen'].value ] = elem;
-        }
+        asks[ elem.attributes['ask'].value ] = elem;
       });
-      elems = dogblock.getElementsByTagName('section');
+      elems = dogblock.querySelectorAll('*[listen]');
       Array.prototype.forEach.call(elems, function (elem) {
-        if (elem.attributes['notify']) {
-          notifys[ elem.attributes['notify'].value ] = elem;
-        } else if (elem.attributes['oneach']) {
-          oneachs[ elem.attributes['oneach'].value ] = elem;
-        }
+        listens[ elem.attributes['listen'].value ] = elem;
       });
-      elems = dogblock.querySelectorAll( dogconfig.auth ? '.authenticated' : '.unauthed' );
+      elems = dogblock.querySelectorAll('*[notify]');
       Array.prototype.forEach.call(elems, function (elem) {
-        var target = sourcetotarget(elem, { id: '', type: 'authentication' });
-        if (target) {
-          var provider = target.attributes['provider'] ? ('/' + target.attributes['provider'].value) : '';
-          target.addEventListener('click', function () {
-            if (dogconfig.auth) {
-              window.location = dogconfig.base + '/account/logout';
-            } else {
-              window.location = dogconfig.base + '/account' + provider + '/login';
-            }
-          });
-        }
+        notifys[ elem.attributes['notify'].value ] = elem;
+      });
+      elems = dogblock.querySelectorAll('*[oneach]');
+      Array.prototype.forEach.call(elems, function (elem) {
+        oneachs[ elem.attributes['oneach'].value ] = elem;
       });
 
       promise.resolve();
