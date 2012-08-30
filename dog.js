@@ -638,7 +638,7 @@
         dogconfig.auth = status["authentication"];
         var authelems = document.querySelectorAll('*[dogjs-auth]');
         Array.prototype.forEach.call(authelems, function (authelem) {
-          if (dogjs.auth != authelem.attributes['dogjs-auth'].value.match(/false/i)) {
+          if (dogconfig.auth == (!!authelem.attributes['dogjs-auth'].value.match(/false/i))) {
             authelem.style.display = 'none';
           }
         });
