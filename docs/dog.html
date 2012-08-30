@@ -531,13 +531,19 @@ Planned addition of websockets.</p>             </td>             <td class="cod
     <span class="nx">subscriber</span><span class="p">.</span><span class="nx">poll</span><span class="p">();</span>
   <span class="p">}</span>
 
-  <span class="kd">function</span> <span class="nx">authenticationCheck</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">function</span> <span class="nx">checkAuth</span><span class="p">()</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">promise</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">();</span>
     <span class="kd">var</span> <span class="nx">req</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Request</span><span class="p">();</span>
     <span class="nx">req</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">dogconfig</span><span class="p">.</span><span class="nx">base</span> <span class="o">+</span> <span class="s1">&#39;/account/status&#39;</span><span class="p">);</span>
     <span class="nx">req</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;success&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">status</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">if</span> <span class="p">(</span><span class="nx">status</span><span class="p">[</span><span class="s2">&quot;success&quot;</span><span class="p">])</span> <span class="p">{</span>
         <span class="nx">dogconfig</span><span class="p">.</span><span class="nx">auth</span> <span class="o">=</span> <span class="nx">status</span><span class="p">[</span><span class="s2">&quot;authentication&quot;</span><span class="p">];</span>
+        <span class="kd">var</span> <span class="nx">authelems</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelectorAll</span><span class="p">(</span><span class="s1">&#39;*[dogjs-auth]&#39;</span><span class="p">);</span>
+        <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">forEach</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">authelems</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">authelem</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">dogjs</span><span class="p">.</span><span class="nx">auth</span> <span class="o">!=</span> <span class="nx">authelem</span><span class="p">.</span><span class="nx">attributes</span><span class="p">[</span><span class="s1">&#39;dogjs-auth&#39;</span><span class="p">].</span><span class="nx">value</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/false/i</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">authelem</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span><span class="p">;</span>
+          <span class="p">}</span>
+        <span class="p">});</span>
         <span class="nx">promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
       <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
         <span class="nx">dogconfig</span><span class="p">.</span><span class="nx">auth</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
@@ -560,7 +566,7 @@ Planned addition of websockets.</p>             </td>             <td class="cod
 
   <span class="kd">function</span> <span class="nx">initialize</span><span class="p">()</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-37">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-37">&#182;</a>               </div>               <p>need a configuration, defaults</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">dogconfig</span> <span class="o">=</span> <span class="nx">dogconfig</span> <span class="o">||</span> <span class="nx">configure</span><span class="p">();</span>
 
-    <span class="kd">var</span> <span class="nx">control</span> <span class="o">=</span> <span class="nx">authenticationCheck</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">control</span> <span class="o">=</span> <span class="nx">checkAuth</span><span class="p">();</span>
     <span class="nx">control</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">fetchTemplates</span><span class="p">);</span>
     <span class="nx">control</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">startTrackPolling</span><span class="p">);</span>
     <span class="nx">control</span><span class="p">.</span><span class="nx">instead</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>

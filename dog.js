@@ -629,13 +629,19 @@
     subscriber.poll();
   }
 
-  function authenticationCheck() {
+  function checkAuth() {
     var promise = new Promise();
     var req = new Request();
     req.get(dogconfig.base + '/account/status');
     req.on('success', function (status) {
       if (status["success"]) {
         dogconfig.auth = status["authentication"];
+        var authelems = document.querySelectorAll('*[dogjs-auth]');
+        Array.prototype.forEach.call(authelems, function (authelem) {
+          if (dogjs.auth != authelem.attributes['dogjs-auth'].value.match(/false/i)) {
+            authelem.style.display = 'none';
+          }
+        });
         promise.resolve();
       } else {
         dogconfig.auth = false;
@@ -660,7 +666,7 @@
     // need a configuration, defaults
     dogconfig = dogconfig || configure();
 
-    var control = authenticationCheck();
+    var control = checkAuth();
     control.then(fetchTemplates);
     control.then(startTrackPolling);
     control.instead(function () {

@@ -117,7 +117,10 @@ Can be initialized with
 Where `base` is the url optional argument (ending in a `/`) that specifies
 the dog API endpoint to use.
 
-### Pagination
+Another option to consider is `templates`, which specifies a URL for
+the templates file. Defaults to `/templates.html`.
+
+### Pagination (removed from spec)
 We can work on different pages, emulated by `dogjs`.
 
 Two special keys that are required: `default` and `templates`.
@@ -138,6 +141,17 @@ It uses url-fragments to manage state. Namely,
     http://www.example.com/#admin
 
 will navigate to the `admin` page.
+
+### Authentication
+Uses the `dogjs-auth` property on elements in the page.
+
+    <a href=".." dogjs-auth="true">Link</a>
+
+Will only display if the user is logged in.
+Similarly, `dogjs-auth=false` will display if the user is logged out.
+
+These may be specified on any element in the page, but not any templates.
+Use a holder on the page if necessary.
 
 ### Browser Requirements
 HTML5 compatibilty
