@@ -392,7 +392,8 @@
   // `dogjs` is an augmented EventEmitter instance
   var dogjs = new EventEmitter(),
     dogconfig = null,
-    asks, notifys, listens, oneachs, streamobjectseen = {};
+    asks, notifys, listens, oneachs, loads,
+    streamobjectseen = {};
 
   var pollinterval, pollcount;
   pollinterval = 1000;
@@ -487,6 +488,13 @@
       if (!sourcenode) { return; } // 'No ask template for item'
       // case 'Dog::RoutedEvent':
       case 'listen':
+      // loaders, for one time triggering of ON EACH to return data
+      if (Utilities.last(item.name) in loads) {
+        var req = new Request();
+        req.on('success', function (data) { console.log(data); });
+        req.post(dogconfig.base + '/stream/object/' + item.id);
+      }
+      // back to the listen case
       sourcenode = sourcenode || listens[ Utilities.last(item.name) ];
       if (!sourcenode) { return; } // 'No listen template for item'
       newnode = sourcetotarget( sourcenode, item );
@@ -517,10 +525,21 @@
       sourcenode = oneachs[ Utilities.last(item.name) ];
       if (!sourcenode) { return; } // 'No oneach template for item'
       sourcenode.dataset['id'] = item['id'];
-      if (sourcenode.attributes['subscribe'] && sourcenode.attributes['subscribe'].value.match(/true/i)) {
-        var subscriber = new Poller(dogconfig.base + '/stream/lexical/' + item.id, pollinterval, pollcount);
-        subscriber.on('poll', onpoll);
-        subscriber.poll();
+      if (sourcenode.attributes['subscribe']) {
+        if (sourcenode.attributes['subscribe'].value.match(/poll/i)) {
+          var subscriber = new Poller(dogconfig.base + '/stream/lexical/' + item.id, pollinterval, pollcount);
+          subscriber.on('poll', onpoll);
+          subscriber.poll();
+        } else if (sourcenode.attributes['subscribe'].value.match(/once/i)) {
+          // run through just one instance of an ON EACH
+          // it's a HACK
+          var subscriber = new Poller(dogconfig.base + '/stream/lexical/' + item.id, pollinterval, pollcount);
+          subscriber.on('poll', function (data) {
+            onpoll.apply(this, arguments);
+            return !data['runtime'].length;
+          });
+          subscriber.poll();
+        }
       }
       break;
       case 'structure':
@@ -564,7 +583,8 @@
       asks = {},
       oneachs = {},
       listens = {},
-      notifys = {};
+      notifys = {},
+      loads = {};
 
       // Scan for Dog tags among the templates
       var elems = dogblock.querySelectorAll('*[ask]');
@@ -582,6 +602,9 @@
       elems = dogblock.querySelectorAll('*[oneach]');
       Array.prototype.forEach.call(elems, function (elem) {
         oneachs[ elem.attributes['oneach'].value ] = elem;
+        if (elem.attributes['load'] && elem.attributes['load'].value) {
+          loads[ elem.attributes['load'].value ] = elem;
+        }
       });
 
       promise.resolve();
