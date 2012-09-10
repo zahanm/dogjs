@@ -587,21 +587,26 @@
       loads = {};
 
       // Scan for Dog tags among the templates
+      var names;
       var elems = dogblock.querySelectorAll('*[ask]');
       Array.prototype.forEach.call(elems, function (elem) {
-        asks[ elem.attributes['ask'].value ] = elem;
+        names = elem.attributes['ask'].value.split(/\s+/);
+        names.forEach(function (name) { asks[ name ] = elem; });
       });
       elems = dogblock.querySelectorAll('*[listen]');
       Array.prototype.forEach.call(elems, function (elem) {
-        listens[ elem.attributes['listen'].value ] = elem;
+        names = elem.attributes['listen'].value.split(/\s+/);
+        names.forEach(function (name) { listens[ name ] = elem; });
       });
       elems = dogblock.querySelectorAll('*[notify]');
       Array.prototype.forEach.call(elems, function (elem) {
-        notifys[ elem.attributes['notify'].value ] = elem;
+        names = elem.attributes['notify'].value.split(/\s+/);
+        names.forEach(function (name) { notifys[ name ] = elem; });
       });
       elems = dogblock.querySelectorAll('*[oneach]');
       Array.prototype.forEach.call(elems, function (elem) {
-        oneachs[ elem.attributes['oneach'].value ] = elem;
+        names = elem.attributes['oneach'].value.split(/\s+/);
+        names.forEach(function (name) { oneachs[ name ] = elem; });
         if (elem.attributes['load'] && elem.attributes['load'].value) {
           loads[ elem.attributes['load'].value ] = elem;
         }
