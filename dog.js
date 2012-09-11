@@ -488,14 +488,18 @@
       if (!sourcenode) { return; } // 'No ask template for item'
       // case 'Dog::RoutedEvent':
       case 'listen':
-      // loaders, for one time triggering of ON EACH to return data
-      if (Utilities.last(item.name) in loads) {
-        var req = new Request();
-        req.on('success', function (data) { console.log(data); });
-        req.post(dogconfig.base + '/stream/object/' + item.id);
-      }
       // back to the listen case
       sourcenode = sourcenode || listens[ Utilities.last(item.name) ];
+      // loaders, for one time triggering of ON EACH to return data
+      if (Utilities.last(item.name) in loads) {
+        sourcenode = loads[ Utilities.last(item.name) ];
+        if (!sourcenode.attributes['dogjs-auth'] || sourcenode.attributes['dogjs-auth'].value.match(/false/i) || dogjs.auth) {
+          var req = new Request();
+          req.on('success', function (data) { console.log(data); });
+          req.post(dogconfig.base + '/stream/object/' + item.id);
+        }
+        sourcenode = false;
+      }
       if (!sourcenode) { return; } // 'No listen template for item'
       newnode = sourcetotarget( sourcenode, item );
       if (newnode) {
