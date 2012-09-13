@@ -383,21 +383,29 @@ Planned addition of websockets.</p>             </td>             <td class="cod
 
   <span class="kd">function</span> <span class="nx">renderDogTemplate</span><span class="p">(</span><span class="nx">source</span><span class="p">,</span> <span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">newnode</span> <span class="o">=</span> <span class="nx">source</span><span class="p">.</span><span class="nx">cloneNode</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">Utilities</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="nx">context</span><span class="p">))</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">template</span><span class="p">;</span> <span class="p">}</span>
-    <span class="nx">context</span> <span class="o">=</span> <span class="nx">reformatDogValue</span><span class="p">(</span><span class="nx">context</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-25">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-25">&#182;</a>               </div>               <p>TODO #### Deviations from Mustache.js
-- Apostrophe for property access</p>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">Utilities</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="nx">context</span><span class="p">))</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">newnode</span><span class="p">;</span> <span class="p">}</span>
+    <span class="nx">context</span> <span class="o">=</span> <span class="nx">reformatDogValue</span><span class="p">(</span><span class="nx">context</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-25">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-25">&#182;</a>               </div>               <p>TODO</p>
 
-<pre><code>{{ person's name }}
-</code></pre>
+<h4>Deviations from Mustache.js</h4>
 
 <ul>
+<li><p>Apostrophe for property access</p>
+
+<p>{{ person's name }}</p></li>
 <li><p>Community profiles</p>
 
 <p>{{ #facebook<em>profile }} {{ person's profile</em>pic }} {{ /facebook_profile }}</p></li>
-</ul>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">newnode</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nx">Mustache</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="nx">source</span><span class="p">.</span><span class="nx">innerHTML</span><span class="p">,</span> <span class="nx">context</span><span class="p">);</span>
-    <span class="nx">Utilities</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">source</span><span class="p">.</span><span class="nx">dataset</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">val</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
-      <span class="nx">newnode</span><span class="p">.</span><span class="nx">dataset</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">Mustache</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="nx">val</span><span class="p">,</span> <span class="nx">context</span><span class="p">);</span>
-    <span class="p">});</span>
+</ul>
+
+<p>possible code:</p>
+
+<pre><code>var template = source.innerHTML;
+mustaches = /{{}}/;
+mustaches.findAll(template).forEach(function (match) {
+  match has apaostrphe ?
+  transform match
+})
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">newnode</span><span class="p">.</span><span class="nx">outerHTML</span> <span class="o">=</span> <span class="nx">Mustache</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="nx">source</span><span class="p">.</span><span class="nx">outerHTML</span><span class="p">,</span> <span class="nx">context</span><span class="p">);</span>
     <span class="k">return</span> <span class="nx">newnode</span><span class="p">;</span>
   <span class="p">}</span>
 
